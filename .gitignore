@@ -1,0 +1,28 @@
+# 原始資料（體積過大，不上傳）
+LubeChart_data/
+NB_data/
+OEM_data/
+
+# 暫存與測試檔案
+__pycache__/
+*.pyc
+*.pyo
+test*.xlsx
+test*.txt
+*.tmp
+
+# 解析報告（暫存，不上傳）
+output/parse_report/
+
+# 舊版本資料檔
+Final_LO_Recommendation.xlsx
+OEM_oil_recommendation.xlsx
+NB_Machinery_list.xlsx
+nb_data_master.csv
+nb_processed.json
+update_nb_data.py
+計畫_執行.md
+
+# 系統檔
+.DS_Store
+Thumbs.db

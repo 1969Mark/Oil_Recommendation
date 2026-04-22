@@ -1,0 +1,86 @@
+{
+  "last_updated": "2026-04-22T17:07:14",
+  "failed_files": {
+    "nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf": {
+      "source": "nb",
+      "first_failed_at": "2026-04-22T17:05:47",
+      "last_failed_at": "2026-04-22T17:05:47",
+      "retry_count": 1,
+      "error_type": "EMPTY_DATA",
+      "error_message": "EMPTY_DATA：解析後無任何有效資料列",
+      "status": "retryable"
+    },
+    "nb/2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf": {
+      "source": "nb",
+      "first_failed_at": "2026-04-22T17:05:47",
+      "last_failed_at": "2026-04-22T17:05:47",
+      "retry_count": 1,
+      "error_type": "EMPTY_DATA",
+      "error_message": "EMPTY_DATA：解析後無任何有效資料列",
+      "status": "retryable"
+    },
+    "nb/CX5410.pdf": {
+      "source": "nb",
+      "first_failed_at": "2026-04-22T17:05:47",
+      "last_failed_at": "2026-04-22T17:05:47",
+      "retry_count": 1,
+      "error_type": "EMPTY_DATA",
+      "error_message": "EMPTY_DATA：解析後無任何有效資料列",
+      "status": "retryable"
+    },
+    "nb/CX9613 - CX9616.pdf": {
+      "source": "nb",
+      "first_failed_at": "2026-04-22T17:05:47",
+      "last_failed_at": "2026-04-22T17:05:47",
+      "retry_count": 1,
+      "error_type": "EMPTY_DATA",
+      "error_message": "EMPTY_DATA：解析後無任何有效資料列",
+      "status": "retryable"
+    },
+    "nb/G6029000-A-LUB.OIL CHART-S1950_240813.pdf": {
+      "source": "nb",
+      "first_failed_at": "2026-04-22T17:05:47",
+      "last_failed_at": "2026-04-22T17:05:47",
+      "retry_count": 1,
+      "error_type": "EMPTY_DATA",
+      "error_message": "EMPTY_DATA：解析後無任何有效資料列",
+      "status": "retryable"
+    },
+    "nb/H2724.pdf": {
+      "source": "nb",
+      "first_failed_at": "2026-04-22T17:05:47",
+      "last_failed_at": "2026-04-22T17:05:47",
+      "retry_count": 1,
+      "error_type": "PDF_PARSE_ERROR",
+      "error_message": "[Errno 13] Permission denied: '/sessions/determined-practical-noether/mnt/2026_NB_oil_recommendation/output/parse_report/nb_H2724_report.xlsx'",
+      "status": "retryable"
+    },
+    "nb/NTS0330001.pdf": {
+      "source": "nb",
+      "first_failed_at": "2026-04-22T17:05:47",
+      "last_failed_at": "2026-04-22T17:05:47",
+      "retry_count": 1,
+      "error_type": "EMPTY_DATA",
+      "error_message": "EMPTY_DATA：解析後無任何有效資料列",
+      "status": "retryable"
+    },
+    "oem/MAN ES_Marine Engine Programme.pdf": {
+      "source": "oem",
+      "first_failed_at": "2026-04-22T17:06:58",
+      "last_failed_at": "2026-04-22T17:06:58",
+      "retry_count": 1,
+      "error_type": "EMPTY_DATA",
+      "error_message": "EMPTY_DATA：PDF 解析後無有效資料",
+      "status": "retryable"
+    },
+    "oem/MAN ES_SL2023-737.pdf": {
+      "source": "oem",
+      "first_failed_at": "2026-04-22T17:06:58",
+      "last_failed_at": "2026-04-22T17:06:58",
+      "retry_count": 1,
+      "error_type": "EMPTY_DATA",
+      "error_message": "EMPTY_DATA：PDF 解析後無有效資料",
+      "status": "retryable"
+    }
+  }
+}

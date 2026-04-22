@@ -1,0 +1,69 @@
+========================================
+時間：2026-04-22 16:26:38
+動作：更新Lube Chart
+----------------------------------------
+新增處理：lubechart-20200101-20200331.csv ✓, lubechart-20200401-20200531.csv ✓, lubechart-20200601-20200930.csv ✓, lubechart-20201001-20201031.csv ✓, lubechart-20201101-20201108.csv ✓, lubechart-20201109-20201109.csv ✓, lubechart-20201110-20201110.csv ✓, lubechart-20201111-20201116.csv ✓, lubechart-20201117-20201130.csv ✓, lubechart-20201201-20201231.csv ✓, lubechart-20210101-20210228.csv ✓, lubechart-20210301-20210531.csv ✓, lubechart-20210601-20210831.csv ✓, lubechart-20210901-20211231.csv ✓, lubechart-20220101-20220630.csv ✓, lubechart-20220701-202201231.csv ✓, lubechart-20230101-20230630.csv ✓, lubechart-20230701-20231231.csv ✓, lubechart-2024.csv ✓, lubechart-20250101-20250630.csv ✓, lubechart-20250701-202501231.csv ✓, lubechart-20260101-20260419.csv ✓
+
+輸出：output/lube_chart_master.xlsx（共 34074 列）
+========================================
+========================================
+時間：2026-04-22 16:27:39
+動作：更新NB
+----------------------------------------
+新增處理：2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf ✓, 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf ✓, 3414_7U-2000-501_Lub Oil Chart(TOTAL)_R100_0001.pdf ✓, 3441's 7U-2000-501 LO Chart (TOTAL)_R101.pdf ✓, 3493~3495 Lub. Oil Chart_Total_R100★.pdf ✓, 8417_L.O CHART_R2.pdf ✓, H1610.pdf ✓, H1839A.pdf ✓, H2724.pdf ✓, H2771-H2776.pdf ✓, HN5801-7U2880201-LUB OIL CHART (TOTAL)_Rev.0.pdf ✓, JLZ8230417.pdf ✓, JNS230.pdf ✓, M-53_5100201N LUBRICATION OIL CHART-(Rev-A)-H1872A 20220727.pdf ✓, NDY1305_.pdf ✓, SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf ✓, SN2662 MF00201 LO ChartRev.C.pdf ✓
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf
+  - CX5410.pdf
+  - CX9613 - CX9616.pdf
+  - G6029000-A-LUB.OIL CHART-S1950_240813.pdf
+  - NTS0330001.pdf
+
+輸出：output/nb_master.xlsx（共 219 列）
+========================================
+========================================
+時間：2026-04-22 16:34:11
+動作：更新OEM
+----------------------------------------
+新增處理：J-ENG_UECC_Engines_USI-10004_9_2.pdf ✓, WinGD_engine-oils_v18.pdf ✓
+失敗（本次）：
+  - MAN ES_Marine Engine Programme.pdf
+  - MAN ES_SL2023-737.pdf
+
+輸出：output/oem_master.xlsx（source_data 0 列 / manual_data 351 列）
+========================================
+========================================
+時間：2026-04-22 17:04:45
+動作：更新Lube Chart
+----------------------------------------
+新增處理：lubechart-20200101-20200331.csv ✓, lubechart-20200401-20200531.csv ✓, lubechart-20200601-20200930.csv ✓, lubechart-20201001-20201031.csv ✓, lubechart-20201101-20201108.csv ✓, lubechart-20201109-20201109.csv ✓, lubechart-20201110-20201110.csv ✓, lubechart-20201111-20201116.csv ✓, lubechart-20201117-20201130.csv ✓, lubechart-20201201-20201231.csv ✓, lubechart-20210101-20210228.csv ✓, lubechart-20210301-20210531.csv ✓, lubechart-20210601-20210831.csv ✓, lubechart-20210901-20211231.csv ✓, lubechart-20220101-20220630.csv ✓, lubechart-20220701-202201231.csv ✓, lubechart-20230101-20230630.csv ✓, lubechart-20230701-20231231.csv ✓, lubechart-2024.csv ✓, lubechart-20250101-20250630.csv ✓, lubechart-20250701-202501231.csv ✓, lubechart-20260101-20260419.csv ✓
+
+輸出：output/lube_chart_master.xlsx（共 34074 列）
+========================================
+========================================
+時間：2026-04-22 17:05:47
+動作：更新NB
+----------------------------------------
+新增處理：2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf ✓, 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf ✓, 3414_7U-2000-501_Lub Oil Chart(TOTAL)_R100_0001.pdf ✓, 3441's 7U-2000-501 LO Chart (TOTAL)_R101.pdf ✓, 3493~3495 Lub. Oil Chart_Total_R100★.pdf ✓, 8417_L.O CHART_R2.pdf ✓, H1610.pdf ✓, H1839A.pdf ✓, H2771-H2776.pdf ✓, HN5801-7U2880201-LUB OIL CHART (TOTAL)_Rev.0.pdf ✓, JLZ8230417.pdf ✓, JNS230.pdf ✓, M-53_5100201N LUBRICATION OIL CHART-(Rev-A)-H1872A 20220727.pdf ✓, NDY1305_.pdf ✓, SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf ✓, SN2662 MF00201 LO ChartRev.C.pdf ✓
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf
+  - CX5410.pdf
+  - CX9613 - CX9616.pdf
+  - G6029000-A-LUB.OIL CHART-S1950_240813.pdf
+  - H2724.pdf
+  - NTS0330001.pdf
+
+輸出：output/nb_master.xlsx（共 219 列）
+========================================
+========================================
+時間：2026-04-22 17:06:58
+動作：更新OEM
+----------------------------------------
+新增處理：J-ENG_UECC_Engines_USI-10004_9_2.pdf ✓, WinGD_engine-oils_v18.pdf ✓
+失敗（本次）：
+  - MAN ES_Marine Engine Programme.pdf
+  - MAN ES_SL2023-737.pdf
+
+輸出：output/oem_master.xlsx（source_data 0 列 / manual_data 351 列）
+========================================
