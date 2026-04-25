@@ -30,7 +30,8 @@ MANUAL_SRC  = os.path.join(PROJECT, 'OEM_oil_recommendation.xlsx')  # 現有人�
 
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
-INVALID_MODEL = {'', '.', '..', 'TO BE DETERMINED', 'TBD', 'N/A', 'NA', 'NONE', '-', '--'}
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _filters import is_invalid_model
 
 HDR_BG   = '1F3864'
 ODD_BG   = 'FFFFFF'
@@ -610,7 +611,7 @@ def main():
     # 標準化 + 過濾
     if not df_source.empty:
         before = len(df_source)
-        df_source = df_source[~df_source['Model / Type'].isin(INVALID_MODEL)]
+        df_source = df_source[~df_source['Model / Type'].apply(is_invalid_model)]
         print(f"\n  過濾無效型號：{before - len(df_source)} 列移除")
 
         before = len(df_source)

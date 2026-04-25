@@ -25,7 +25,8 @@ LOG_FILE = os.path.join(LOG_DIR, 'update_log.txt')
 
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
-INVALID_MODEL = {'', '.', '..', 'TO BE DETERMINED', 'TBD', 'N/A', 'NA', 'NONE', '-', '--'}
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _filters import is_invalid_model
 
 # ── Excel 色彩 ──────────────────────────────────────────────────
 HDR_BG   = '1F3864'
@@ -340,7 +341,7 @@ def main():
 
     # 過濾無效型號
     before = len(df_master)
-    df_master = df_master[~df_master['Model / Type'].isin(INVALID_MODEL)]
+    df_master = df_master[~df_master['Model / Type'].apply(is_invalid_model)]
     print(f"  過濾無效型號：{before - len(df_master)} 列移除")
 
     # 排除 TALUSIA LS 25

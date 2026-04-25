@@ -106,12 +106,12 @@ def rebuild_html() -> bool:
         print("  ⚠ 無資料可嵌入 HTML，跳過重建")
         return False
 
-    df_all = pd.concat(frames, ignore_index=True)
+    df_all = pd.concat(frames, ignore_index=True).copy()
     for col in DISPLAY_COLS:
-        df_all[col] = df_all[col].fillna('').astype(str).str.strip()
+        df_all.loc[:, col] = df_all[col].fillna('').astype(str).str.strip()
 
     # 排序：OEM > NB > LUBE CHART，再依 Maker / Model 字母順序
-    df_all['_order'] = df_all['Source'].map(SRC_ORDER).fillna(3).astype(int)
+    df_all.loc[:, '_order'] = df_all['Source'].map(SRC_ORDER).fillna(3).astype(int)
     df_all = df_all.sort_values(['_order', 'Maker', 'Model / Type']).drop(columns=['_order'])
     df_all = df_all.reset_index(drop=True)
 

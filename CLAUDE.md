@@ -408,10 +408,15 @@ for file in files_to_process:
 
 ### 3. 過濾無效型號
 
-`Model / Type` 欄位符合以下條件的記錄一律排除：
+`Model / Type` 欄位符合以下條件的記錄一律排除（實作於 `scripts/_filters.py` 共用模組，三支 process 腳本共用）：
 - 空白、純空格
 - 佔位符號：`.`、`..`、`-`、`--`、`N/A`、`NA`、`NONE`
 - 未定義值：`TO BE DETERMINED`、`TBD`
+- **數量描述型雜訊**（PDF 解析常見誤抓）：
+  - 純數字：`(2)`、`3`、`(10)`
+  - 數字 + 單位：`(2 SETS)`、`2SET`、`(1 UNIT)`、`3 PCS`、`2 EA`、`4 NOS`
+  - X + 數字 / 數字 + X：`X2`、`2X`、`(X3)`、`(3X)`
+  - 判斷邏輯：`scripts/_filters.py` 的 `is_quantity_only()`（regex 比對，去括號後僅剩數量描述即視為無效）
 
 ### 4. 去除重複列
 
