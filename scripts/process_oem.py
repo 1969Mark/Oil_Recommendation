@@ -15,17 +15,18 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 
 # ── 路徑設定 ────────────────────────────────────────────────────
-PROJECT    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OEM_DIR    = os.path.join(PROJECT, 'OEM_data')
-OUT_DIR    = os.path.join(PROJECT, 'output')
-RPT_DIR    = os.path.join(OUT_DIR, 'parse_report')
-REG_DIR    = os.path.join(PROJECT, 'registry')
-LOG_DIR    = os.path.join(PROJECT, 'logs')
-MASTER     = os.path.join(OUT_DIR, 'oem_master.xlsx')
-REG_FILE   = os.path.join(REG_DIR, 'oem_registry.json')
-FAIL_REG   = os.path.join(REG_DIR, 'failed_registry.json')
-LOG_FILE   = os.path.join(LOG_DIR, 'update_log.txt')
-MANUAL_SRC = os.path.join(PROJECT, 'OEM_oil_recommendation.xlsx')  # 現有人工資料
+PROJECT     = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OEM_DIR     = os.path.join(PROJECT, 'OEM_data')
+OUT_DIR     = os.path.join(PROJECT, 'output')
+RPT_DIR     = os.path.join(OUT_DIR, 'parse_report')
+PENDING_DIR = os.path.join(OUT_DIR, 'pending_ai_review')   # AI 待審閱暫存區
+REG_DIR     = os.path.join(PROJECT, 'registry')
+LOG_DIR     = os.path.join(PROJECT, 'logs')
+MASTER      = os.path.join(OUT_DIR, 'oem_master.xlsx')
+REG_FILE    = os.path.join(REG_DIR, 'oem_registry.json')
+FAIL_REG    = os.path.join(REG_DIR, 'failed_registry.json')
+LOG_FILE    = os.path.join(LOG_DIR, 'update_log.txt')
+MANUAL_SRC  = os.path.join(PROJECT, 'OEM_oil_recommendation.xlsx')  # 現有人工資料
 
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
@@ -71,12 +72,50 @@ def needs_processing(fname, fpath, reg):
         return True, 'new'
     rec = reg['processed_files'][fname]
     stat = os.stat(fpath)
-    mtime = datetime.fromtimestamp(stat.st_mtime).isoformat(timespec='seconds')
+    mtime = datetime.utcfromtimestamp(stat.st_mtime).isoformat(timespec='seconds')
     if mtime != rec.get('file_mtime', ''):
         return True, 'mtime_changed'
     if sha256(fpath) != rec.get('sha256', ''):
         return True, 'sha256_changed'
     return False, 'unchanged'
+
+# ── AI 待審閱：提取全文並存檔 ───────────────────────────────────
+def save_pending_review(fpath, fname):
+    """
+    當 PDF 表格解析無法取得有效資料，但仍含可讀文字時，
+    將全文提取並存為 pending_ai_review/{name}_pending.json，
+    供 Claude Cowork 事後讀取、彙整並向使用者確認。
+    回傳 (pending_path, 有文字的頁數)
+    """
+    os.makedirs(PENDING_DIR, exist_ok=True)
+    pages_data = []
+    with pdfplumber.open(fpath) as pdf:
+        for i, page in enumerate(pdf.pages, start=1):
+            text = (page.extract_text() or '').strip()
+            pages_data.append({'page': i, 'text': text})
+
+    text_pages = sum(1 for p in pages_data if p['text'])
+    full_text  = '\n\n--- Page {} ---\n'.join(
+        p['text'] for p in pages_data if p['text']
+    )
+
+    pending = {
+        'filename'     : fname,
+        'source'       : 'oem',
+        'extracted_at' : datetime.now().isoformat(timespec='seconds'),
+        'total_pages'  : len(pages_data),
+        'text_pages'   : text_pages,
+        'pages'        : pages_data,
+        'full_text'    : full_text,
+        'status'       : 'pending'          # pending → confirmed → written
+    }
+
+    stem       = os.path.splitext(fname)[0]
+    out_path   = os.path.join(PENDING_DIR, f'{stem}_pending.json')
+    with open(out_path, 'w', encoding='utf-8') as f:
+        json.dump(pending, f, indent=2, ensure_ascii=False)
+
+    return out_path, text_pages
 
 # ── PDF 解析（OEM 用簡化版）──────────────────────────────────────
 MAX_PAGES_PER_PDF = 60  # 超過此頁數的 PDF 只處理前 MAX_PAGES 頁，其餘標記 medium
@@ -256,8 +295,8 @@ def write_oem_master(df_source, df_manual, path):
     """
     wb = Workbook()
 
-    source_cols = COLS + ['Source']
-    manual_cols = COLS + ['Source']
+    source_cols = COLS + ['Source', 'source_file', 'source_sheet']
+    manual_cols = COLS + ['Source', 'source_file', 'source_sheet']
 
     def write_sheet(ws, df, cols, color):
         ws.freeze_panes = 'A2'
@@ -438,7 +477,7 @@ def main():
             print("✓ 無需更新，所有檔案未變更。")
         return
 
-    stats = {'added': [], 'updated': [], 'failed': []}
+    stats = {'added': [], 'updated': [], 'failed': [], 'pending_review': []}
     report_summary = []
 
     for fname, fpath, reason in to_process:
@@ -457,7 +496,34 @@ def main():
             elif ext == '.pdf':
                 records, _ = parse_oem_pdf(fpath, fname)
                 if not records:
-                    raise ValueError("EMPTY_DATA：PDF 解析後無有效資料")
+                    # ── 嘗試提取全文，存入 pending_ai_review ──────────────
+                    try:
+                        pending_path, text_pages = save_pending_review(fpath, fname)
+                    except Exception as pe:
+                        raise ValueError(f"EMPTY_DATA：PDF 解析後無有效資料，且文字提取失敗：{pe}")
+
+                    if text_pages == 0:
+                        raise ValueError("EMPTY_DATA：PDF 解析後無有效資料（掃描版或無文字層）")
+
+                    # 標記為 ai_review_pending，不走失敗流程
+                    fail_key = f'oem/{fname}'
+                    freg.setdefault('failed_files', {})[fail_key] = {
+                        'source'         : 'oem',
+                        'first_failed_at': now.isoformat(timespec='seconds'),
+                        'last_failed_at' : now.isoformat(timespec='seconds'),
+                        'retry_count'    : 0,
+                        'error_type'     : 'AI_REVIEW_PENDING',
+                        'error_message'  : (
+                            f'無結構化表格，已提取 {text_pages} 頁文字，'
+                            f'待 Claude AI 審閱後確認寫入 manual_data'
+                        ),
+                        'status'         : 'ai_review_pending',
+                        'pending_file'   : pending_path
+                    }
+                    stats['pending_review'].append(fname)
+                    print(f"    ℹ️  無結構化表格，已提取 {text_pages} 頁文字 → pending_ai_review/")
+                    save_failed_registry(freg)
+                    continue  # 不算失敗，跳過寫入 master
 
                 conf_count = {'high': 0, 'medium': 0, 'low': 0}
                 for r in records:
@@ -482,6 +548,8 @@ def main():
                     'Part to be lubricated': r.get('Part to be lubricated', ''),
                     'Lubricant': r.get('Lubricant', ''),
                     'Source': 'OEM',
+                    'source_file': fname,
+                    'source_sheet': '',
                 } for r in records_for_master])
                 for col in COLS:
                     df_new[col] = df_new[col].fillna('').astype(str).str.strip().str.upper()
@@ -504,7 +572,7 @@ def main():
             reg['processed_files'][fname] = {
                 'processed_at': now.isoformat(timespec='seconds'),
                 'file_size_bytes': stat.st_size,
-                'file_mtime': datetime.fromtimestamp(stat.st_mtime).isoformat(timespec='seconds'),
+                'file_mtime': datetime.utcfromtimestamp(stat.st_mtime).isoformat(timespec='seconds'),
                 'sha256': sha256(fpath)
             }
             fail_key = f'oem/{fname}'
@@ -554,7 +622,7 @@ def main():
         print(f"  去重：{before - len(df_source)} 列移除，剩餘 {len(df_source)} 列")
 
     # 確保所有欄位存在
-    source_cols = COLS + ['Source']
+    source_cols = COLS + ['Source', 'source_file', 'source_sheet']
     for col in source_cols:
         if col not in df_source.columns:
             df_source[col] = ''
@@ -581,9 +649,12 @@ def main():
         '動作：更新OEM',
         '-' * 40,
     ]
-    if stats['added']:   log_lines.append(f'新增處理：{", ".join(stats["added"])}')
-    if stats['updated']: log_lines.append(f'重新處理：{", ".join(stats["updated"])}')
-    if skipped:          log_lines.append(f'跳過：{len(skipped)} 個檔案（未變更）')
+    if stats['added']:          log_lines.append(f'新增處理：{", ".join(stats["added"])}')
+    if stats['updated']:        log_lines.append(f'重新處理：{", ".join(stats["updated"])}')
+    if skipped:                 log_lines.append(f'跳過：{len(skipped)} 個檔案（未變更）')
+    if stats['pending_review']:
+        log_lines.append('待 AI 審閱（文字已提取，無結構化表格）：')
+        for f in stats['pending_review']: log_lines.append(f'  - {f}  → pending_ai_review/')
     if stats['failed']:
         log_lines.append('失敗（本次）：')
         for f in stats['failed']: log_lines.append(f'  - {f}')
@@ -598,10 +669,11 @@ def main():
     print('\n' + '=' * 50)
     print('📊 執行摘要')
     print('-' * 50)
-    if stats['added']:   print(f'新增：{len(stats["added"])} 個檔案')
-    if stats['updated']: print(f'更新：{len(stats["updated"])} 個檔案')
-    if skipped:          print(f'跳過：{len(skipped)} 個檔案')
-    if stats['failed']:  print(f'失敗：{len(stats["failed"])} 個檔案')
+    if stats['added']:          print(f'新增：{len(stats["added"])} 個檔案')
+    if stats['updated']:        print(f'更新：{len(stats["updated"])} 個檔案')
+    if skipped:                 print(f'跳過：{len(skipped)} 個檔案')
+    if stats['pending_review']: print(f'待 AI 審閱：{len(stats["pending_review"])} 個檔案（文字已存入 pending_ai_review/）')
+    if stats['failed']:         print(f'失敗：{len(stats["failed"])} 個檔案')
     print(f'source_data：{len(df_source):,} 列')
     print(f'manual_data：{len(df_manual):,} 列（來源：OEM_oil_recommendation.xlsx）')
 
@@ -611,6 +683,13 @@ def main():
             rpt_name = f'oem_{os.path.splitext(fname)[0]}_report.xlsx'
             print(f'  - {fname} → 共 {total} 筆')
             print(f'    HIGH:{cc["high"]}  MEDIUM:{cc["medium"]}  LOW:{cc["low"]}  → parse_report/{rpt_name}')
+
+    if stats['pending_review']:
+        print('\n🤖 以下 PDF 含有文字但無結構化表格，已暫存供 AI 審閱：')
+        for f in stats['pending_review']:
+            stem = os.path.splitext(f)[0]
+            print(f'   - {f}  →  output/pending_ai_review/{stem}_pending.json')
+        print('   請執行「審閱OEM」讓 Claude 彙整並確認後寫入 manual_data。')
 
     if manual_req:
         print('\n⚠️  以下檔案需要人工介入（已失敗 3 次）：')

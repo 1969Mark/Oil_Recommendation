@@ -67,3 +67,471 @@
 
 輸出：output/oem_master.xlsx（source_data 0 列 / manual_data 351 列）
 ========================================
+========================================
+時間：2026-04-25 00:01:17
+動作：更新NB
+----------------------------------------
+新增處理：CX5410.pdf ✓, CX9613 - CX9616.pdf ✓, H2724.pdf ✓
+跳過：16 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf
+  - G6029000-A-LUB.OIL CHART-S1950_240813.pdf
+  - NTS0330001.pdf
+
+輸出：output/nb_master.xlsx（共 243 列）
+========================================
+========================================
+時間：2026-04-25 00:18:22
+動作：更新NB
+----------------------------------------
+新增處理：JNS230.pdf ✓
+跳過：18 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf
+  - G6029000-A-LUB.OIL CHART-S1950_240813.pdf
+  - NTS0330001.pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf
+  - nb/G6029000-A-LUB.OIL CHART-S1950_240813.pdf
+  - nb/NTS0330001.pdf
+
+輸出：output/nb_master.xlsx（共 255 列）
+========================================
+========================================
+時間：2026-04-25 03:00:10
+動作：更新NB
+----------------------------------------
+新增處理：2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf ✓
+跳過：19 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - G6029000-A-LUB.OIL CHART-S1950_240813.pdf
+  - NTS0330001.pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/G6029000-A-LUB.OIL CHART-S1950_240813.pdf
+  - nb/NTS0330001.pdf
+
+輸出：output/nb_master.xlsx（共 280 列）
+========================================
+========================================
+時間：2026-04-25 03:10:51
+動作：更新NB
+----------------------------------------
+跳過：20 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - G6029000-A-LUB.OIL CHART-S1950_240813.pdf
+  - NTS0330001.pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/G6029000-A-LUB.OIL CHART-S1950_240813.pdf
+  - nb/NTS0330001.pdf
+
+輸出：output/nb_master.xlsx（共 280 列）
+========================================
+========================================
+時間：2026-04-25 11:51:46
+動作：更新NB
+----------------------------------------
+跳過：20 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - G6029000-A-LUB.OIL CHART-S1950_240813.pdf
+  - NTS0330001.pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/G6029000-A-LUB.OIL CHART-S1950_240813.pdf
+  - nb/NTS0330001.pdf
+
+輸出：output/nb_master.xlsx（共 280 列）
+========================================
+========================================
+時間：2026-04-25 12:05:46
+動作：更新NB
+----------------------------------------
+新增處理：G6029000-A-LUB.OIL CHART-S1950_240813.pdf ✓
+跳過：20 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - NTS0330001.pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/NTS0330001.pdf
+
+輸出：output/nb_master.xlsx（共 376 列）
+========================================
+========================================
+時間：2026-04-25 12:07:22
+動作：更新NB
+----------------------------------------
+新增處理：G6029000-A-LUB.OIL CHART-S1950_240813.pdf ✓
+跳過：20 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - NTS0330001.pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/NTS0330001.pdf
+
+輸出：output/nb_master.xlsx（共 376 列）
+========================================
+========================================
+時間：2026-04-25 13:02:17
+動作：更新NB
+----------------------------------------
+跳過：21 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - NTS0330001.pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/NTS0330001.pdf
+
+輸出：output/nb_master.xlsx（共 376 列）
+========================================
+========================================
+時間：2026-04-25 13:03:14
+動作：更新NB
+----------------------------------------
+新增處理：NTS0330001.pdf ✓
+跳過：21 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+
+輸出：output/nb_master.xlsx（共 412 列）
+========================================
+========================================
+時間：2026-04-25 13:07:09
+動作：更新NB
+----------------------------------------
+跳過：22 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+
+輸出：output/nb_master.xlsx（共 412 列）
+========================================
+========================================
+時間：2026-04-25 13:07:33
+動作：更新NB
+----------------------------------------
+新增處理：NTS0330001.pdf ✓
+跳過：21 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+
+輸出：output/nb_master.xlsx（共 504 列）
+========================================
+========================================
+時間：2026-04-25 16:15:40
+動作：更新NB
+----------------------------------------
+跳過：22 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+
+輸出：output/nb_master.xlsx（共 504 列）
+========================================
+========================================
+時間：2026-04-25 16:33:45
+動作：更新NB
+----------------------------------------
+新增處理：2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf ✓, 3414_7U-2000-501_Lub Oil Chart(TOTAL)_R100_0001.pdf ✓, 3441's 7U-2000-501 LO Chart (TOTAL)_R101.pdf ✓, 3493~3495 Lub. Oil Chart_Total_R100★.pdf ✓, 8417_L.O CHART_R2.pdf ✓, CX5410.pdf ✓, G6029000-A-LUB.OIL CHART-S1950_240813.pdf ✓, H1610.pdf ✓（無 high/medium 記錄）, H1839A.pdf ✓, H2724.pdf ✓（無 high/medium 記錄）, H2771-H2776.pdf ✓, HN5801-7U2880201-LUB OIL CHART (TOTAL)_Rev.0.pdf ✓（無 high/medium 記錄）, JNS230.pdf ✓, M-53_5100201N LUBRICATION OIL CHART-(Rev-A)-H1872A 20220727.pdf ✓, NTS0330001.pdf ✓, SN2662 MF00201 LO ChartRev.C.pdf ✓
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf
+  - CX9613 - CX9616.pdf
+  - JLZ8230417.pdf
+  - NDY1305_.pdf
+  - SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+
+輸出：output/nb_master.xlsx（共 625 列）
+========================================
+========================================
+時間：2026-04-25 17:22:49
+動作：更新NB
+----------------------------------------
+新增處理：2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf ✓, 3414_7U-2000-501_Lub Oil Chart(TOTAL)_R100_0001.pdf ✓, 3441's 7U-2000-501 LO Chart (TOTAL)_R101.pdf ✓, 3493~3495 Lub. Oil Chart_Total_R100★.pdf ✓, 8417_L.O CHART_R2.pdf ✓, CX5410.pdf ✓, G6029000-A-LUB.OIL CHART-S1950_240813.pdf ✓, H1610.pdf ✓（無 high/medium 記錄）, H1839A.pdf ✓, H2771-H2776.pdf ✓, HN5801-7U2880201-LUB OIL CHART (TOTAL)_Rev.0.pdf ✓（無 high/medium 記錄）, JNS230.pdf ✓, M-53_5100201N LUBRICATION OIL CHART-(Rev-A)-H1872A 20220727.pdf ✓, NTS0330001.pdf ✓, SN2662 MF00201 LO ChartRev.C.pdf ✓, SN2672 76 79 81 83 85 L.O chart(TOTAL)_HSHFO_rev.D_2025-09-19.pdf ✓
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf
+  - CX9613 - CX9616.pdf
+  - H2724.pdf
+  - JLZ8230417.pdf
+  - NDY1305_.pdf
+  - SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+
+輸出：output/nb_master.xlsx（共 662 列）
+========================================
+========================================
+時間：2026-04-25 17:39:08
+動作：更新NB
+----------------------------------------
+新增處理：2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf ✓, 3414_7U-2000-501_Lub Oil Chart(TOTAL)_R100_0001.pdf ✓, 3441's 7U-2000-501 LO Chart (TOTAL)_R101.pdf ✓, 3493~3495 Lub. Oil Chart_Total_R100★.pdf ✓, 8417_L.O CHART_R2.pdf ✓, CX5410.pdf ✓, G6029000-A-LUB.OIL CHART-S1950_240813.pdf ✓, H1610.pdf ✓（無 high/medium 記錄）, H1839A.pdf ✓, H2771-H2776.pdf ✓, HN5801-7U2880201-LUB OIL CHART (TOTAL)_Rev.0.pdf ✓, JNS230.pdf ✓, M-53_5100201N LUBRICATION OIL CHART-(Rev-A)-H1872A 20220727.pdf ✓, NTS0330001.pdf ✓, SN2662 MF00201 LO ChartRev.C.pdf ✓, SN2672 76 79 81 83 85 L.O chart(TOTAL)_HSHFO_rev.D_2025-09-19.pdf ✓
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf
+  - CX9613 - CX9616.pdf
+  - H2724.pdf
+  - JLZ8230417.pdf
+  - NDY1305_.pdf
+  - SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - nb/30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf
+  - nb/CX9613 - CX9616.pdf
+  - nb/JLZ8230417.pdf
+  - nb/NDY1305_.pdf
+  - nb/SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+輸出：output/nb_master.xlsx（共 770 列）
+========================================
+========================================
+時間：2026-04-25 17:51:41
+動作：更新NB
+----------------------------------------
+新增處理：NDY1305_.pdf ✓
+跳過：16 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf
+  - CX9613 - CX9616.pdf
+  - H2724.pdf
+  - JLZ8230417.pdf
+  - SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - nb/30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf
+  - nb/CX9613 - CX9616.pdf
+  - nb/JLZ8230417.pdf
+  - nb/SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+  - nb/H2724.pdf
+
+輸出：output/nb_master.xlsx（共 828 列）
+========================================
+========================================
+時間：2026-04-25 17:58:25
+動作：更新NB
+----------------------------------------
+新增處理：30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf ✓, H2724.pdf ✓
+跳過：17 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - CX9613 - CX9616.pdf
+  - JLZ8230417.pdf
+  - SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - nb/CX9613 - CX9616.pdf
+  - nb/JLZ8230417.pdf
+  - nb/SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+輸出：output/nb_master.xlsx（共 978 列）
+========================================
+========================================
+時間：2026-04-25 18:06:19
+動作：更新NB
+----------------------------------------
+新增處理：CX9613 - CX9616.pdf ✓, JLZ8230417.pdf ✓（無 high/medium 記錄）
+跳過：19 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - nb/JLZ8230417.pdf
+  - nb/SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+輸出：output/nb_master.xlsx（共 979 列）
+========================================
+========================================
+時間：2026-04-25 18:14:32
+動作：更新NB
+----------------------------------------
+跳過：21 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - nb/JLZ8230417.pdf
+  - nb/SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+輸出：output/nb_master.xlsx（共 978 列）
+========================================
+========================================
+時間：2026-04-25 18:16:47
+動作：更新NB
+----------------------------------------
+新增處理：JLZ8230417.pdf ✓（無 high/medium 記錄）
+跳過：20 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - nb/JLZ8230417.pdf
+  - nb/SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+輸出：output/nb_master.xlsx（共 978 列）
+========================================
+========================================
+時間：2026-04-25 18:21:51
+動作：更新NB
+----------------------------------------
+新增處理：JLZ8230417.pdf ✓
+跳過：20 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+  - nb/SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf
+
+輸出：output/nb_master.xlsx（共 1045 列）
+========================================
+========================================
+時間：2026-04-25 18:34:01
+動作：更新NB
+----------------------------------------
+新增處理：SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf ✓
+跳過：21 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+  - nb/2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf
+
+輸出：output/nb_master.xlsx（共 1046 列）
+========================================
+========================================
+時間：2026-04-25 18:40:39
+動作：更新NB
+----------------------------------------
+新增處理：2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf ✓
+跳過：22 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+
+輸出：output/nb_master.xlsx（共 1066 列）
+========================================
+========================================
+時間：2026-04-25 18:42:40
+動作：更新NB
+----------------------------------------
+新增處理：SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf ✓
+跳過：22 個檔案（未變更）
+失敗（本次）：
+  - 010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+
+⚠️  需人工介入（manual_required）：
+  - nb/010-2 7U-2000-501_LUB OIL CHART_0001.pdf
+
+輸出：output/nb_master.xlsx（共 1172 列）
+========================================
+========================================
+時間：2026-04-25 18:56:38
+動作：更新NB
+----------------------------------------
+新增處理：010-2 7U-2000-501_LUB OIL CHART_0001.pdf ✓
+跳過：23 個檔案（未變更）
+
+輸出：output/nb_master.xlsx（共 1231 列）
+========================================
+========================================
+時間：2026-04-25 18:57:41
+動作：更新NB
+----------------------------------------
+新增處理：SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf ✓
+跳過：23 個檔案（未變更）
+
+輸出：output/nb_master.xlsx（共 1231 列）
+========================================
+========================================
+時間：2026-04-25 19:05:38
+動作：更新NB
+----------------------------------------
+新增處理：010-2 7U-2000-501_LUB OIL CHART_0001.pdf ✓, 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf ✓, 2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf ✓, 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf ✓, 3414_7U-2000-501_Lub Oil Chart(TOTAL)_R100_0001.pdf ✓, 3441's 7U-2000-501 LO Chart (TOTAL)_R101.pdf ✓, 3493~3495 Lub. Oil Chart_Total_R100★.pdf ✓, 8417_L.O CHART_R2.pdf ✓, CX5410.pdf ✓, CX9613 - CX9616.pdf ✓, G6029000-A-LUB.OIL CHART-S1950_240813.pdf ✓, H1610.pdf ✓（無 high/medium 記錄）, H1839A.pdf ✓, H2724.pdf ✓, H2771-H2776.pdf ✓, HN5801-7U2880201-LUB OIL CHART (TOTAL)_Rev.0.pdf ✓, JLZ8230417.pdf ✓, JNS230.pdf ✓, M-53_5100201N LUBRICATION OIL CHART-(Rev-A)-H1872A 20220727.pdf ✓, NDY1305_.pdf ✓, NTS0330001.pdf ✓, SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf ✓
+失敗（本次）：
+  - SN2662 MF00201 LO ChartRev.C.pdf
+  - SN2672 76 79 81 83 85 L.O chart(TOTAL)_HSHFO_rev.D_2025-09-19.pdf
+
+輸出：output/nb_master.xlsx（共 1235 列）
+========================================
+========================================
+時間：2026-04-25 19:07:22
+動作：更新NB
+----------------------------------------
+新增處理：010-2 7U-2000-501_LUB OIL CHART_0001.pdf ✓, 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf ✓, 2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf ✓, 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf ✓, 3414_7U-2000-501_Lub Oil Chart(TOTAL)_R100_0001.pdf ✓, 3441's 7U-2000-501 LO Chart (TOTAL)_R101.pdf ✓, 3493~3495 Lub. Oil Chart_Total_R100★.pdf ✓, 8417_L.O CHART_R2.pdf ✓, CX5410.pdf ✓, CX9613 - CX9616.pdf ✓, G6029000-A-LUB.OIL CHART-S1950_240813.pdf ✓, H1610.pdf ✓（無 high/medium 記錄）, H1839A.pdf ✓, H2724.pdf ✓, H2771-H2776.pdf ✓, HN5801-7U2880201-LUB OIL CHART (TOTAL)_Rev.0.pdf ✓, JLZ8230417.pdf ✓, JNS230.pdf ✓, M-53_5100201N LUBRICATION OIL CHART-(Rev-A)-H1872A 20220727.pdf ✓, NDY1305_.pdf ✓, NTS0330001.pdf ✓, SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf ✓
+失敗（本次）：
+  - SN2662 MF00201 LO ChartRev.C.pdf
+  - SN2672 76 79 81 83 85 L.O chart(TOTAL)_HSHFO_rev.D_2025-09-19.pdf
+
+輸出：output/nb_master.xlsx（共 1075 列）
+========================================
+========================================
+時間：2026-04-25 19:28:53
+動作：更新NB
+----------------------------------------
+新增處理：010-2 7U-2000-501_LUB OIL CHART_0001.pdf ✓, 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf ✓, 2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf ✓, 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf ✓, 3414_7U-2000-501_Lub Oil Chart(TOTAL)_R100_0001.pdf ✓, 3441's 7U-2000-501 LO Chart (TOTAL)_R101.pdf ✓, 3493~3495 Lub. Oil Chart_Total_R100★.pdf ✓, 8417_L.O CHART_R2.pdf ✓, CX5410.pdf ✓, CX9613 - CX9616.pdf ✓, G6029000-A-LUB.OIL CHART-S1950_240813.pdf ✓, H1610.pdf ✓（無 high/medium 記錄）, H1839A.pdf ✓, H2724.pdf ✓, H2771-H2776.pdf ✓, HN5801-7U2880201-LUB OIL CHART (TOTAL)_Rev.0.pdf ✓, JLZ8230417.pdf ✓, JNS230.pdf ✓, M-53_5100201N LUBRICATION OIL CHART-(Rev-A)-H1872A 20220727.pdf ✓, NDY1305_.pdf ✓, NTS0330001.pdf ✓, SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf ✓, SN2662 MF00201 LO ChartRev.C.pdf ✓, SN2672 76 79 81 83 85 L.O chart(TOTAL)_HSHFO_rev.D_2025-09-19.pdf ✓
+
+輸出：output/nb_master.xlsx（共 1330 列）
+========================================
+========================================
+時間：2026-04-25 20:14:43
+動作：更新NB
+----------------------------------------
+新增處理：010-2 7U-2000-501_LUB OIL CHART_0001.pdf ✓, 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf ✓, 2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf ✓, 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf ✓, 3414_7U-2000-501_Lub Oil Chart(TOTAL)_R100_0001.pdf ✓, 3441's 7U-2000-501 LO Chart (TOTAL)_R101.pdf ✓, 3493~3495 Lub. Oil Chart_Total_R100★.pdf ✓, 8417_L.O CHART_R2.pdf ✓, CX5410.pdf ✓, CX9613 - CX9616.pdf ✓, G6029000-A-LUB.OIL CHART-S1950_240813.pdf ✓, H1610.pdf ✓（無 high/medium 記錄）, H1839A.pdf ✓, H2724.pdf ✓, H2771-H2776.pdf ✓, HN5801-7U2880201-LUB OIL CHART (TOTAL)_Rev.0.pdf ✓, JLZ8230417.pdf ✓, JNS230.pdf ✓, M-53_5100201N LUBRICATION OIL CHART-(Rev-A)-H1872A 20220727.pdf ✓, NDY1305_.pdf ✓, NTS0330001.pdf ✓, SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf ✓, SN2662 MF00201 LO ChartRev.C.pdf ✓, SN2672 76 79 81 83 85 L.O chart(TOTAL)_HSHFO_rev.D_2025-09-19.pdf ✓
+
+輸出：output/nb_master.xlsx（共 1110 列）
+========================================

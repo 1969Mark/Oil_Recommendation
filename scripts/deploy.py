@@ -20,13 +20,21 @@ deploy.py — ABC Lubrication Data Pipeline 部署腳本
 import subprocess
 import sys
 import os
+import json
+import re
 from datetime import datetime
 from pathlib import Path
+
+import pandas as pd
 
 # ── 路徑設定 ──────────────────────────────────────────────────
 BASE_DIR = Path(__file__).parent.parent
 OUTPUT_DIR = BASE_DIR / "output"
 LOG_FILE = BASE_DIR / "logs" / "update_log.txt"
+APP_HTML = BASE_DIR / "lube_query_app.html"
+
+DISPLAY_COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant', 'Source']
+SRC_ORDER = {'OEM': 0, 'NB': 1, 'LUBE CHART': 2}
 
 REQUIRED_FILES = [
     OUTPUT_DIR / "lube_chart_master.xlsx",
@@ -46,6 +54,92 @@ GIT_ADD_TARGETS = [
     ".gitignore",
     "CLAUDE.md",
 ]
+
+# ── HTML 重建（移除 source_file 欄位）──────────────────────────
+def rebuild_html() -> bool:
+    """
+    讀取三個 master Excel，合併後只保留 DISPLAY_COLS（不含 source_file/source_sheet），
+    依 OEM > NB > LUBE CHART 排序後嵌入 lube_query_app.html 的 const DATA。
+    """
+    frames = []
+
+    lube_master = OUTPUT_DIR / "lube_chart_master.xlsx"
+    nb_master   = OUTPUT_DIR / "nb_master.xlsx"
+    oem_master  = OUTPUT_DIR / "oem_master.xlsx"
+
+    if lube_master.exists():
+        try:
+            df = pd.read_excel(lube_master, sheet_name='lube_chart')
+            for col in DISPLAY_COLS:
+                if col not in df.columns:
+                    df[col] = ''
+            frames.append(df[DISPLAY_COLS].copy())
+        except Exception as e:
+            print(f"  ⚠ 讀取 lube_chart_master.xlsx 失敗：{e}")
+
+    if nb_master.exists():
+        try:
+            df = pd.read_excel(nb_master, sheet_name='nb_master')
+            for col in DISPLAY_COLS:
+                if col not in df.columns:
+                    df[col] = ''
+            frames.append(df[DISPLAY_COLS].copy())
+        except Exception as e:
+            print(f"  ⚠ 讀取 nb_master.xlsx 失敗：{e}")
+
+    if oem_master.exists():
+        try:
+            df_src = pd.read_excel(oem_master, sheet_name='source_data')
+        except Exception:
+            df_src = pd.DataFrame()
+        try:
+            df_man = pd.read_excel(oem_master, sheet_name='manual_data')
+        except Exception:
+            df_man = pd.DataFrame()
+        df_oem = pd.concat([df_src, df_man], ignore_index=True)
+        for col in DISPLAY_COLS:
+            if col not in df_oem.columns:
+                df_oem[col] = ''
+        frames.append(df_oem[DISPLAY_COLS].copy())
+
+    if not frames:
+        print("  ⚠ 無資料可嵌入 HTML，跳過重建")
+        return False
+
+    df_all = pd.concat(frames, ignore_index=True)
+    for col in DISPLAY_COLS:
+        df_all[col] = df_all[col].fillna('').astype(str).str.strip()
+
+    # 排序：OEM > NB > LUBE CHART，再依 Maker / Model 字母順序
+    df_all['_order'] = df_all['Source'].map(SRC_ORDER).fillna(3).astype(int)
+    df_all = df_all.sort_values(['_order', 'Maker', 'Model / Type']).drop(columns=['_order'])
+    df_all = df_all.reset_index(drop=True)
+
+    records   = df_all.to_dict(orient='records')
+    data_json = json.dumps(records, ensure_ascii=False, separators=(',', ':'))
+
+    if not APP_HTML.exists():
+        print("  ⚠ lube_query_app.html 不存在，跳過重建")
+        return False
+
+    html_lines = APP_HTML.read_text(encoding='utf-8').split('\n')
+    new_lines  = []
+    replaced   = False
+    for line in html_lines:
+        if re.match(r'\s*const DATA\s*=\s*\[', line):
+            new_lines.append(f'const DATA = {data_json};')
+            replaced = True
+        else:
+            new_lines.append(line)
+
+    if not replaced:
+        print("  ⚠ HTML 中未找到 const DATA = [...]; 行，跳過重建")
+        return False
+
+    APP_HTML.write_text('\n'.join(new_lines), encoding='utf-8')
+    print(f"  ✓ lube_query_app.html 重建完成（{len(records):,} 筆，不含 source_file）")
+    return True
+
 
 # ── Helper ────────────────────────────────────────────────────
 def run(cmd: list[str], cwd=None) -> tuple[int, str, str]:
@@ -97,7 +191,7 @@ def main():
     print("=" * 50)
 
     # 1. 確認 master Excel 均存在
-    print("\n[1/4] 確認 master Excel 檔案...")
+    print("\n[1/5] 確認 master Excel 檔案...")
     missing = [f for f in REQUIRED_FILES if not f.exists()]
     if missing:
         for m in missing:
@@ -107,8 +201,12 @@ def main():
     for f in REQUIRED_FILES:
         print(f"  ✓ {f.name}")
 
-    # 2. Git add
-    print("\n[2/4] 加入 git staging area...")
+    # 2. 重建 App HTML（移除 source_file 欄位，只保留顯示欄）
+    print("\n[2/5] 重建 lube_query_app.html（移除 source_file 欄位）...")
+    rebuild_html()
+
+    # 3. Git add
+    print("\n[3/5] 加入 git staging area...")
     for target in GIT_ADD_TARGETS:
         full_path = BASE_DIR / target
         if Path(str(full_path)).exists() or target.endswith("/"):
@@ -126,8 +224,8 @@ def main():
         print("\n📋 沒有需要 commit 的改動，部署流程結束。")
         return
 
-    # 3. Git commit
-    print("\n[3/4] 建立 commit...")
+    # 4. Git commit
+    print("\n[4/5] 建立 commit...")
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
     commit_msg = f"data: update {now_str}"
     code, out, err = run(["git", "commit", "-m", commit_msg])
@@ -140,8 +238,8 @@ def main():
     code2, commit_hash, _ = run(["git", "rev-parse", "--short", "HEAD"])
     print(f"  ✓ commit：{commit_hash}  \"{commit_msg}\"")
 
-    # 4. Git push
-    print("\n[4/4] 推送至 GitHub...")
+    # 5. Git push
+    print("\n[5/5] 推送至 GitHub...")
     code, out, err = run(["git", "push", "origin", "main"])
     if code != 0:
         # 嘗試設定 upstream 再推送

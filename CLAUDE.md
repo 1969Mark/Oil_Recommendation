@@ -90,6 +90,7 @@ Oil_Recommendation/
 `status` 欄位說明：
 - `retryable`：可自動重試（retry_count < 3）
 - `manual_required`：已達重試上限，需人工介入
+- `ai_review_pending`：無結構化表格但含可讀文字，已提取全文存入 `output/pending_ai_review/`，等待 Claude AI 審閱後由使用者確認寫入 `manual_data`；**不自動重試**
 
 ### 新增/異動的判斷邏輯
 
@@ -256,13 +257,52 @@ for file in files_to_process:
 
 #### PDF 格式類型（自動偵測，無需手動指定）
 
-| 格式 | 偵測條件 | 解析方式 |
-|---|---|---|
-| **Format A** | 英文欄位，表格有明確 x 座標邊界 | 依 x 座標定位欄位，逐列擷取 |
-| **Format B** | 含 `MAKER:` / `TYPE:` 關鍵字（中文或英文混合表格） | 以關鍵字為錨點，解析鍵值對 |
-| **Format C** | 廠家與型號合併在同一欄位（無明確分隔欄） | 以正則表達式拆分廠家與型號 |
+由 `process_nb.py` 的 `detect_format()` 自動辨識，目前支援以下 14 種：
 
-偵測順序：Format B → Format C → Format A（fallback）。偵測失敗則改為純文字解析，並標記 `confidence = low`。
+| 格式 | 偵測條件（標題列關鍵字） | 解析方式 |
+|---|---|---|
+| **Format A** | （fallback）英文欄位，表格有明確 x 座標邊界 | 依固定 x 座標定位欄位，逐列擷取 |
+| **Format B** | 含 `MAKER:` / `TYPE:` 關鍵字、或 `船东供油料清单` / `OIL LIST FOR OWNER SUPPLY` | 以關鍵字為錨點，解析鍵值對 |
+| **Format C** | 標題含 `Maker&` / `Maker &` / `厂家及型号`（廠家與型號合併欄） | 以正則表達式拆分廠家與型號 |
+| **Format D** | `EQUIPMENT + PART + LUB OIL`（中國造船廠三欄式） | 三欄式表格解析 |
+| **Format E** | `TOTAL OIL + EQUIPMENT MAKER`（江南造船廠，油品欄在前） | 自定欄序解析 |
+| **Format F** | `PRINCIPAL PARTICULAR + APPLICATION POINT`（Hyundai HHI L.O Chart） | HHI 多欄表格解析 |
+| **Format G** | `EQUIPMENT + APPLICATION POINT + PRODUCT`（K Shipbuilding，無 PRINCIPAL PARTICULAR） | A.設備清單 + B.潤滑油表雙區塊解析 |
+| **Format H** | `BRAND + (MAKER 或 制造商)`（NTS 中英雙語，Lub. Oil brand 在 row4） | 中英雙語多列標題解析 |
+| **Format I** | `KIND OF LUB + APPLICATION POINT`（HN5801 供應商格式） | EQUIPMENT (MAKER/TYPE) 合併欄解析 |
+| **Format J** | `OIL BRAND + POINT`（無 APPLICATION 關鍵字，如 NDY1305） | 中英雙語 OIL BRAND 解析 |
+| **Format K** | `LUBRICATING POINT + KIND OF LUBRICANT`（JIT 船东供油料清单） | 自定欄序解析 |
+| **Format L** | `L.O. BRAND + LUBRICATION + MAKER`（雙層合併標題） | 雙層標題解析 |
+| **Format M** | `EQUIPMENT + MANUFACTURER + APPLICATION`（SN2265、SN2662、SN2672 等） | 動態欄位偵測 + word 座標 + pending 列暫存 |
+| **Format N** | `NAME OF MACHINERY + PRINCIPAL PARTICULAR + L.O GRADE + APPLICATION POINT` 且 PDF 為 90° 旋轉（pdfplumber 文字反向） | 用 PyMuPDF (fitz) 讀 word 座標，依 Y-bands 分欄 |
+
+**偵測順序**（在 `detect_format()` 中由上而下短路判斷）：
+
+1. **Format N**（前置掃描，需 fitz）：旋轉版 PDF 必須先抓，避免被 pdfplumber 反向文字誤判
+2. **Format L**（前置掃描）：先於主迴圈，避免被 Format D 早期攔截
+3. 主迴圈（前 5 頁）：Format F → E → J → K → M → D（早期攔截嚴格條件）→ H → G → I → D（寬鬆條件）→ C
+4. 文字內容判斷：Format B（船東供油料清單 / MAKER: 關鍵字）
+5. **Format A**（fallback）
+
+偵測失敗則改為純文字解析，並標記 `confidence = low`。
+
+#### 🆕 新增 NB PDF 的前置流程（強制）
+
+當 `data/nb/` 出現 registry 中尚未登記的新檔案時，**Claude 不得直接執行 `process_nb.py`**，必須先依序完成以下步驟：
+
+1. **列出新檔名**給使用者，並先暫停解析
+2. **請使用者提供原稿截圖**（至少包含表頭與前幾列資料），說明各欄位對應關係：
+   - 哪一欄是 Equipment / 設備名稱
+   - 哪一欄是 Maker / 製造廠
+   - 哪一欄是 Model / Type / 型號
+   - 哪一欄是 Application Point / 潤滑部位
+   - 哪一欄是 Lubricant / 推薦油品
+3. **比對既有 Format A~N**：
+   - 若符合既有格式 → 確認 `detect_format()` 能正確判定 → 執行解析
+   - 若不符合 → 與使用者討論新增 Format 的偵測條件與解析邏輯，更新 `process_nb.py` 並補上對應記憶後再執行
+4. **確認後**才呼叫 `process_nb.py`，並核對 parse_report 的 medium/low 列數
+
+**Why**：歷次新格式（SN2265、010-2、SN2662 等）若無事前確認，常出現欄位錯位、Model 沿用、Maker 累加、表格旋轉未偵測等錯誤，事後修正成本遠高於事前 5 分鐘的截圖溝通。此規則僅適用於 NB PDF；OEM 與 Lube Chart 不受影響。
 
 #### 處理邏輯
 
@@ -412,6 +452,7 @@ for file in files_to_process:
 | `更新全部` | 依序執行三個 process 腳本（均為增量 + 自動重試）→ 記錄 log |
 | `部署` | 提示使用者在本機終端機執行 `python scripts/deploy.py` → Git commit/push → Vercel 自動部署 |
 | `更新並部署` | 依序執行 `更新全部`（Claude 處理）→ 提示使用者執行 `python scripts/deploy.py` 完成部署 |
+| `審閱OEM` | 讀取 `output/pending_ai_review/` 所有 `_pending.json`，依下方「AI 審閱工作流程」逐檔彙整並向使用者確認，確認後寫入 `manual_data` |
 | `查看核對報告` | 列出 `output/parse_report/` 下所有報告，顯示各報告的 medium/low 列數 |
 | `查看失敗` | 顯示 `failed_registry.json` 中所有失敗檔案、錯誤原因、重試次數與狀態 |
 | `重試 [檔名]` | 重置該檔案的失敗記錄（清除 failed_registry 中該項目）→ 立即重新嘗試處理 |
@@ -524,6 +565,67 @@ Windows 可執行 `git config credential.helper store` 讓系統記住 PAT。
 4. 使用者在本機終端機執行：python scripts/deploy.py
 5. Vercel 自動部署，數分鐘內線上版本更新
 ```
+
+---
+
+## 🤖 AI 審閱工作流程（`審閱OEM` 指令）
+
+當使用者執行「審閱OEM」或「更新OEM」結束後出現 `ai_review_pending` 檔案時，Claude 依以下流程執行：
+
+### 步驟 1：掃描待審閱清單
+
+讀取 `output/pending_ai_review/` 下所有 `*_pending.json`，篩選 `status == "pending"` 的檔案。
+
+### 步驟 2：逐檔理解並彙整
+
+對每個 pending 檔案，Claude 閱讀 `full_text`（含所有頁面文字），從中找出潤滑油相關資訊，依以下欄位格式彙整：
+
+| 欄位 | 說明 |
+|---|---|
+| `Equipment` | 設備類型，例如 `MAIN ENGINE`、`AUXILIARY ENGINE` |
+| `Maker` | 製造廠，例如 `MAN B&W` |
+| `Model / Type` | 引擎型號或類型，例如 `ME-C`、`MC-C`；如適用多型號可用通用描述 |
+| `Part to be lubricated` | 潤滑部位，例如 `CYLINDER OIL BN40`、`SYSTEM OIL` |
+| `Lubricant` | 推薦油品規格，例如 `CAT. II BN 40`、`SAE 30 / ISO VG 100` |
+
+### 步驟 3：向使用者呈現彙整結果
+
+以清楚的表格形式列出所有提取的資料筆數與內容摘要，然後**直接詢問**：
+
+> 「以上共 N 筆資料是否全部寫入 manual_data？」
+
+- 使用者回答「是」或「全部接受」→ 執行步驟 4
+- 使用者指定修改某幾筆 → 依指示修正後重新確認
+- 使用者回答「否」或「不需要」→ 將 pending 檔的 `status` 改為 `skipped`，不寫入
+
+### 步驟 4：寫入 manual_data
+
+確認後，Claude 用 Python（`openpyxl`）開啟 `output/oem_master.xlsx`，將確認資料 **append** 到 `manual_data` sheet（絕不碰 `source_data`），格式遵守 Excel 輸出格式規範：
+- `source_file` 填 `"manual"`
+- `source_sheet` 填原始 PDF 檔名（不含副檔名）
+- `Source` 填 `"OEM"`
+- 所有文字欄位全大寫
+
+### 步驟 5：更新 pending 狀態
+
+寫入成功後：
+1. 將 pending JSON 的 `status` 改為 `written`，記錄 `written_at` 時間戳記
+2. 從 `failed_registry.json` 移除該 `ai_review_pending` 項目
+3. 在對話中回報「已寫入 N 筆至 manual_data」
+
+### pending_ai_review 目錄結構
+
+```
+output/
+└── pending_ai_review/
+    ├── MAN ES_SL2023-737_pending.json      ← status: pending → written
+    └── [其他檔名]_pending.json
+```
+
+pending JSON 的 `status` 欄位狀態流：
+- `pending` → 剛提取，尚未審閱
+- `written` → 已確認並寫入 manual_data（含 written_at 時間戳）
+- `skipped` → 使用者確認不需要寫入
 
 ---
 

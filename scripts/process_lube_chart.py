@@ -168,7 +168,7 @@ def write_excel(df, path):
     ws.title = 'lube_chart'
     ws.freeze_panes = 'A2'
 
-    all_cols = COLS + ['Source']
+    all_cols = COLS + ['Source', 'source_file']
     # 標題列
     for ci, col in enumerate(all_cols, 1):
         c = ws.cell(row=1, column=ci, value=col)
