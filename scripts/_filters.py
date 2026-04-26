@@ -51,6 +51,38 @@ def strip_quantity_descriptor(s):
     return out if out else s
 
 
+# Model / Type 功率/轉速規格括號（觸發即整段 ( ... ) 移除）
+_POWER_SPEC_KEYWORDS = re.compile(
+    r'(?<![A-Z])(?:KW|RPM|HP|PS|KVA)(?![A-Z])|@',
+    re.IGNORECASE,
+)
+_MODEL_PAREN = re.compile(r'\s*\(([^()]*)\)')
+# 缺右括號（PDF 解析常見）：`(186KW` 延續到字串結尾
+_MODEL_PAREN_OPEN = re.compile(r'\s*\(([^()]*)$')
+
+
+def strip_power_spec_parens(s):
+    """Model / Type 移除功率/轉速規格括號：
+    觸發 keyword（位於括號內）：KW / RPM / HP / PS / KVA / @ 任一即整段 ( ... ) 移除。
+    例：`6DC-17 (530KW@900RPM)` → `6DC-17`、`TD914L06M (99KW@1800RPM)` → `TD914L06M`。
+    亦處理缺右括號的破損 PDF 解析結果，例：`AD086TIS (186KW` → `AD086TIS`。
+    保留：冷媒型號 (R404A) / 引擎尾標 (M)/(R)/(S) / 缸數範圍 (5–8 CYL) /
+         位置標記 (PORT SIDE) / 力學規格 (65KN) 等不含上述 keyword 的括號。"""
+    if not isinstance(s, str):
+        return s
+
+    def _repl(m):
+        inner = m.group(1)
+        if _POWER_SPEC_KEYWORDS.search(inner):
+            return ''
+        return m.group(0)
+
+    out = _MODEL_PAREN.sub(_repl, s)
+    out = _MODEL_PAREN_OPEN.sub(_repl, out)
+    out = re.sub(r'\s+', ' ', out).strip()
+    return out if out else s
+
+
 def is_invalid_model(model) -> bool:
     """完整判斷：固定無效值集合 + 數量描述型雜訊。"""
     if not isinstance(model, str):

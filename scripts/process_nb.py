@@ -30,7 +30,7 @@ LOG_FILE   = os.path.join(LOG_DIR, 'update_log.txt')
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor, apply_part_semantic_merge, apply_compressor_part_rule, strip_non_fuel_parens
+from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor, strip_power_spec_parens, apply_part_semantic_merge, apply_compressor_part_rule, strip_non_fuel_parens
 
 # Excel 色彩
 HDR_BG  = '1F3864'
@@ -2040,6 +2040,11 @@ def main():
     before_m = df_master['Model / Type'].copy()
     df_master['Model / Type'] = df_master['Model / Type'].map(strip_quantity_descriptor)
     print(f"\n  Model 數量字尾移除：{(before_m != df_master['Model / Type']).sum()} 列")
+
+    # 移除 Model 功率/轉速規格括號（含 KW/RPM/HP/PS/KVA/@）
+    before_pow = df_master['Model / Type'].copy()
+    df_master['Model / Type'] = df_master['Model / Type'].map(strip_power_spec_parens)
+    print(f"  Model 功率規格括號移除：{(before_pow != df_master['Model / Type']).sum()} 列")
 
     # 過濾無效型號
     before = len(df_master)

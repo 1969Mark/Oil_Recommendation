@@ -926,3 +926,74 @@ NB：
 
 備註：OEM 未動到（manual_data 受保護，括號規則不套用於 OEM）
 ========================================
+========================================
+時間：2026-04-26 15:37:47
+動作：部署（GitHub + Vercel）
+----------------------------------------
+Git commit：cd2aa41
+推送至 GitHub：✓
+Vercel 部署：已透過 webhook 自動觸發
+========================================
+========================================
+時間：2026-04-26 15:53:10
+動作：更新Lube Chart
+----------------------------------------
+新增處理：lubechart-20200101-20200331.csv ✓, lubechart-20200401-20200531.csv ✓, lubechart-20200601-20200930.csv ✓, lubechart-20201001-20201031.csv ✓, lubechart-20201101-20201108.csv ✓, lubechart-20201109-20201109.csv ✓, lubechart-20201110-20201110.csv ✓, lubechart-20201111-20201116.csv ✓, lubechart-20201117-20201130.csv ✓, lubechart-20201201-20201231.csv ✓, lubechart-20210101-20210228.csv ✓, lubechart-20210301-20210531.csv ✓, lubechart-20210601-20210831.csv ✓, lubechart-20210901-20211231.csv ✓, lubechart-20220101-20220630.csv ✓, lubechart-20220701-202201231.csv ✓, lubechart-20230101-20230630.csv ✓, lubechart-20230701-20231231.csv ✓, lubechart-2024.csv ✓, lubechart-20250101-20250630.csv ✓, lubechart-20250701-202501231.csv ✓, lubechart-20260101-20260419.csv ✓
+
+輸出：output/lube_chart_master.xlsx（共 33295 列）
+========================================
+========================================
+時間：2026-04-26 15:54:15
+動作：更新NB
+----------------------------------------
+新增處理：010-2 7U-2000-501_LUB OIL CHART_0001.pdf ✓, 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf ✓, 2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf ✓, 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf ✓, 3414_7U-2000-501_Lub Oil Chart(TOTAL)_R100_0001.pdf ✓, 3441's 7U-2000-501 LO Chart (TOTAL)_R101.pdf ✓, 3493~3495 Lub. Oil Chart_Total_R100★.pdf ✓, 8417_L.O CHART_R2.pdf ✓, CX5410.pdf ✓, CX9613 - CX9616.pdf ✓, G6029000-A-LUB.OIL CHART-S1950_240813.pdf ✓, H1610.pdf ✓（無 high/medium 記錄）, H1839A.pdf ✓, H2724.pdf ✓, H2771-H2776.pdf ✓, HN5801-7U2880201-LUB OIL CHART (TOTAL)_Rev.0.pdf ✓, JLZ8230417.pdf ✓, JNS230.pdf ✓, M-53_5100201N LUBRICATION OIL CHART-(Rev-A)-H1872A 20220727.pdf ✓, NDY1305_.pdf ✓, NTS0330001.pdf ✓, SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf ✓, SN2662 MF00201 LO ChartRev.C.pdf ✓, SN2672 76 79 81 83 85 L.O chart(TOTAL)_HSHFO_rev.D_2025-09-19.pdf ✓
+
+輸出：output/nb_master.xlsx（共 1088 列）
+========================================
+========================================
+時間：2026-04-26 15:55:08
+動作：更新OEM
+----------------------------------------
+新增處理：J-ENG_UECC_Engines_USI-10004_9_2.pdf ✓, WinGD_engine-oils_v18.pdf ✓
+待 AI 審閱（文字已提取，無結構化表格）：
+  - MAN ES_Marine Engine Programme.pdf  → pending_ai_review/
+  - MAN ES_SL2023-737.pdf  → pending_ai_review/
+
+輸出：output/oem_master.xlsx（source_data 0 列 / manual_data 355 列）
+========================================
+
+========================================
+時間：2026-04-26 15:58:53
+動作：重建全部
+----------------------------------------
+重建內容：清除三個 registry，重新處理全部原始檔
+本次新規則：
+  - Model 功率/轉速規格括號移除（strip_power_spec_parens）
+    觸發：括號內含 KW/RPM/HP/PS/KVA/@ 任一即整段移除
+  - App 排序改為 Count 降序 → Source(OEM>NB>LUBE) → Maker → Model
+
+Lube Chart：
+  - 22 CSV 全部重新處理 ✓
+  - Model 功率規格括號移除：883 列改寫
+  - Part 括號清理：721 列改寫
+  - 排除 NOT LUBRICATED：417 列移除
+  - 排除 TALUSIA LS 25：150 列移除
+  - 去重：106,150 列移除
+  - 輸出：output/lube_chart_master.xlsx（共 33,295 列）
+
+NB：
+  - 24 PDF 全部重新處理 ✓
+  - Model 功率規格括號移除：0 列（NB 無此類規格）
+  - Part 括號清理：105 列改寫
+  - 解析報告全部重新產生
+  - 輸出：output/nb_master.xlsx（共 1,088 列）
+
+OEM：
+  - 2 PDF 全部重新處理 ✓
+  - Model 功率規格括號移除：0 列
+  - source_data 0 列（185 列 Model 被視為無效，屬既有行為）
+  - manual_data 355 列保留（受保護未被改寫）
+  - 輸出：output/oem_master.xlsx
+
+App 排序：lube_query_app.html 已更新（Count 降序 → Source → Maker → Model）
+========================================

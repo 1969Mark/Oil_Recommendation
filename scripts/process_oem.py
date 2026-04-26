@@ -31,7 +31,7 @@ MANUAL_SRC  = os.path.join(PROJECT, 'OEM_oil_recommendation.xlsx')  # 現有人�
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor
+from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor, strip_power_spec_parens
 
 HDR_BG   = '1F3864'
 ODD_BG   = 'FFFFFF'
@@ -616,6 +616,11 @@ def main():
         before_m = df_source['Model / Type'].copy()
         df_source['Model / Type'] = df_source['Model / Type'].map(strip_quantity_descriptor)
         print(f"\n  Model 數量字尾移除：{(before_m != df_source['Model / Type']).sum()} 列")
+
+        # 移除 Model 功率/轉速規格括號（含 KW/RPM/HP/PS/KVA/@）
+        before_pow = df_source['Model / Type'].copy()
+        df_source['Model / Type'] = df_source['Model / Type'].map(strip_power_spec_parens)
+        print(f"  Model 功率規格括號移除：{(before_pow != df_source['Model / Type']).sum()} 列")
 
         before = len(df_source)
         df_source = df_source[~df_source['Model / Type'].apply(is_invalid_model)]

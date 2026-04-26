@@ -379,13 +379,14 @@ for file in files_to_process:
 
 #### App 查詢結果排序規則
 
-查詢結果依 `Source` 欄位照以下順序排列：
+查詢結果依以下優先順序排列（`lube_query_app.html` 的 `sortByCount()`）：
 
-1. `OEM`（最高優先，廠家原廠規格）
-2. `NB`（新造船潤滑油圖表）
-3. `LUBE CHART`（最後）
+1. `Count` **降序**（高頻次優先；OEM 等無 Count 欄位的記錄以 1 計算）
+2. `Source`：`OEM` > `NB` > `LUBE CHART`
+3. `Maker` 字母順序
+4. `Model / Type` 字母順序
 
-同一 Source 內的資料，依 `Maker` → `Model / Type` 字母順序排列。
+> ⚠️ master Excel（`lube_chart_master.xlsx` / `nb_master.xlsx` / `oem_master.xlsx`）**不依此規則排序**，僅 App 顯示時套用。
 
 ---
 
@@ -426,7 +427,10 @@ for file in files_to_process:
   - 判斷邏輯：`scripts/_filters.py` 的 `is_quantity_only()`（regex 比對，去括號後僅剩數量描述即視為無效）
 - **Model 末端數量字尾移除**（`strip_quantity_descriptor()`）：型號 + 末端括號量詞時保留型號，剝除量詞。例：`NZ61 (3 SETS)` → `NZ61`、`NZ61 (X3)` → `NZ61`、`MODEL-A 300 EA` → `MODEL-A`。
   - 移除模式：末尾 `(數字)`、`(數字 SETS/UNITS/PCS/EA/NOS)`、`(X數字)`、`(數字X)`，以及無括號的 ` 數字 SETS/UNITS/PCS/EA/NOS`
-  - **不移除**：`(R404A)`、`(M)`、`(EAL)`、`(STB'D SIDE)`、`(99KW@1800RPM)` 等語意性括號內容
+  - **不移除**：`(R404A)`、`(M)`、`(EAL)`、`(STB'D SIDE)` 等語意性括號內容
+- **Model 功率/轉速規格括號移除**（`strip_power_spec_parens()`，三支腳本均套用，緊接於 `strip_quantity_descriptor` 之後）：括號內含 `KW` / `RPM` / `HP` / `PS` / `KVA` / `@` 任一 keyword 即整段 `( ... )` 移除（含缺右括號的破損 PDF 解析）。例：`6DC-17 (530KW@900RPM)` → `6DC-17`、`TD914L06M (99KW@1800RPM)` → `TD914L06M`、`AD086TIS (186KW` → `AD086TIS`。
+  - keyword 比對規則：`(?<![A-Z])(?:KW|RPM|HP|PS|KVA)(?![A-Z])` 字母邊界、或字面 `@`，避免誤殺如 `KWH`/`HPU` 等延伸字。
+  - **保留**：`(R404A)`、`(M)`、`(5–8 CYL)`、`(PORT SIDE)`、`(65KN)`、`(CAT.I)` 等不含上述 keyword 的括號。
 
 ### 4. Maker / Model / Part 比對鍵正規化（規則式分群）
 
