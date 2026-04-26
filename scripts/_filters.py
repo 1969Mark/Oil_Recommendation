@@ -28,6 +28,29 @@ def is_quantity_only(model) -> bool:
     return bool(_QTY_PATTERN.match(model.strip().upper()))
 
 
+_TRAILING_QTY_PAREN = re.compile(
+    r'\s*\(\s*(?:'
+    r'\d+\s*(?:SETS?|UNITS?|PCS?|EA|NOS?)?'
+    r'|X\s*\d+|\d+\s*X'
+    r')\s*\)\s*$',
+    re.IGNORECASE,
+)
+_TRAILING_QTY_BARE = re.compile(
+    r'\s+\d+\s*(?:SETS?|UNITS?|PCS?|EA|NOS?)\s*$',
+    re.IGNORECASE,
+)
+
+
+def strip_quantity_descriptor(s):
+    """移除 Model 末端的數量描述：(3 SETS) / (X3) / (2) / 「 300 EA」等。
+    僅在剝除後仍非空時才採用，避免把純數量字串變成空字串（後續會被 is_invalid_model 過濾）。"""
+    if not isinstance(s, str):
+        return s
+    out = _TRAILING_QTY_PAREN.sub('', s)
+    out = _TRAILING_QTY_BARE.sub('', out).strip()
+    return out if out else s
+
+
 def is_invalid_model(model) -> bool:
     """完整判斷：固定無效值集合 + 數量描述型雜訊。"""
     if not isinstance(model, str):

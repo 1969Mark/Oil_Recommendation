@@ -26,7 +26,7 @@ LOG_FILE = os.path.join(LOG_DIR, 'update_log.txt')
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _filters import is_invalid_model, canonicalize_column, maker_key, model_key
+from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor
 
 # ── Excel 色彩 ──────────────────────────────────────────────────
 HDR_BG   = '1F3864'
@@ -374,6 +374,12 @@ def main():
     part_norm = build_part_norm_map(df_master['Part to be lubricated'])
     df_master['Part to be lubricated'] = df_master['Part to be lubricated'].map(lambda x: part_norm.get(x, x))
     print(f"  Part 標準化：{len(part_norm)} variants")
+
+    # 移除 Model 末端數量描述（(3 SETS)、(X3)、(2)、 300 EA 等）
+    before_models = df_master['Model / Type'].copy()
+    df_master['Model / Type'] = df_master['Model / Type'].map(strip_quantity_descriptor)
+    qty_stripped = (before_models != df_master['Model / Type']).sum()
+    print(f"  Model 數量字尾移除：{qty_stripped} 列")
 
     # 過濾無效型號
     before = len(df_master)

@@ -30,7 +30,7 @@ LOG_FILE   = os.path.join(LOG_DIR, 'update_log.txt')
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _filters import is_invalid_model, canonicalize_column, maker_key, model_key
+from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor
 
 # Excel 色彩
 HDR_BG  = '1F3864'
@@ -2036,10 +2036,15 @@ def main():
         if col not in df_master.columns:
             df_master[col] = ''
 
+    # 移除 Model 末端數量描述
+    before_m = df_master['Model / Type'].copy()
+    df_master['Model / Type'] = df_master['Model / Type'].map(strip_quantity_descriptor)
+    print(f"\n  Model 數量字尾移除：{(before_m != df_master['Model / Type']).sum()} 列")
+
     # 過濾無效型號
     before = len(df_master)
     df_master = df_master[~df_master['Model / Type'].apply(is_invalid_model)]
-    print(f"\n  過濾無效型號：{before - len(df_master)} 列移除")
+    print(f"  過濾無效型號：{before - len(df_master)} 列移除")
 
     # 排除 TALUSIA LS 25
     before = len(df_master)

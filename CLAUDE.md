@@ -417,6 +417,9 @@ for file in files_to_process:
   - 數字 + 單位：`(2 SETS)`、`2SET`、`(1 UNIT)`、`3 PCS`、`2 EA`、`4 NOS`
   - X + 數字 / 數字 + X：`X2`、`2X`、`(X3)`、`(3X)`
   - 判斷邏輯：`scripts/_filters.py` 的 `is_quantity_only()`（regex 比對，去括號後僅剩數量描述即視為無效）
+- **Model 末端數量字尾移除**（`strip_quantity_descriptor()`）：型號 + 末端括號量詞時保留型號，剝除量詞。例：`NZ61 (3 SETS)` → `NZ61`、`NZ61 (X3)` → `NZ61`、`MODEL-A 300 EA` → `MODEL-A`。
+  - 移除模式：末尾 `(數字)`、`(數字 SETS/UNITS/PCS/EA/NOS)`、`(X數字)`、`(數字X)`，以及無括號的 ` 數字 SETS/UNITS/PCS/EA/NOS`
+  - **不移除**：`(R404A)`、`(M)`、`(EAL)`、`(STB'D SIDE)`、`(99KW@1800RPM)` 等語意性括號內容
 
 ### 4. Maker / Model 比對鍵正規化（規則式分群）
 

@@ -31,7 +31,7 @@ MANUAL_SRC  = os.path.join(PROJECT, 'OEM_oil_recommendation.xlsx')  # 現有人�
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _filters import is_invalid_model, canonicalize_column, maker_key, model_key
+from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor
 
 HDR_BG   = '1F3864'
 ODD_BG   = 'FFFFFF'
@@ -610,9 +610,13 @@ def main():
 
     # 標準化 + 過濾
     if not df_source.empty:
+        before_m = df_source['Model / Type'].copy()
+        df_source['Model / Type'] = df_source['Model / Type'].map(strip_quantity_descriptor)
+        print(f"\n  Model 數量字尾移除：{(before_m != df_source['Model / Type']).sum()} 列")
+
         before = len(df_source)
         df_source = df_source[~df_source['Model / Type'].apply(is_invalid_model)]
-        print(f"\n  過濾無效型號：{before - len(df_source)} 列移除")
+        print(f"  過濾無效型號：{before - len(df_source)} 列移除")
 
         before = len(df_source)
         df_source = df_source[~df_source['Lubricant'].str.contains('TALUSIA LS 25', na=False)]
