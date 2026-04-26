@@ -26,7 +26,7 @@ LOG_FILE = os.path.join(LOG_DIR, 'update_log.txt')
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor
+from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor, apply_part_semantic_merge
 
 # ── Excel 色彩 ──────────────────────────────────────────────────
 HDR_BG   = '1F3864'
@@ -169,7 +169,7 @@ def write_excel(df, path):
     ws.title = 'lube_chart'
     ws.freeze_panes = 'A2'
 
-    all_cols = COLS + ['Source', 'source_file']
+    all_cols = COLS + ['Count', 'Source', 'source_file']
     # 標題列
     for ci, col in enumerate(all_cols, 1):
         c = ws.cell(row=1, column=ci, value=col)
@@ -397,6 +397,12 @@ def main():
     df_master = df_master[~df_master['Lubricant'].str.contains('TALUSIA LS 25', na=False)]
     print(f"  排除 TALUSIA LS 25：{before - len(df_master)} 列移除")
 
+    # Part 語意合併（HYDRAULIC 同義詞 → HYDRAULIC SYSTEM；通用齒輪 → ENCLOSED GEAR）
+    before_part = df_master['Part to be lubricated'].copy()
+    df_master['Part to be lubricated'] = df_master['Part to be lubricated'].map(apply_part_semantic_merge)
+    sem_changed = (before_part != df_master['Part to be lubricated']).sum()
+    print(f"  Part 語意合併（HYDRAULIC/GEAR）：{sem_changed} 列改寫")
+
     # Maker / Model / Part 正規化（方案 A：規則式比對鍵 + 最高頻原文為標準形）
     new_makers, maker_groups = canonicalize_column(df_master['Maker'], maker_key)
     new_models, model_groups = canonicalize_column(df_master['Model / Type'], model_key)
@@ -414,10 +420,14 @@ def main():
     except Exception as e:
         print(f"  ⚠️  正規化報告寫入失敗（不影響主流程）：{e}")
 
-    # 去重
+    # 計算 Count（4-tuple 在去重前的出現次數），保留至 master
+    df_master['Count'] = df_master.groupby(DEDUP_KEYS, dropna=False)['Maker'].transform('size').fillna(1).astype(int)
+
+    # 去重（Count 欄已記錄群組大小，drop_duplicates 保留首列即可）
     before = len(df_master)
     df_master = df_master.drop_duplicates(subset=DEDUP_KEYS)
     print(f"  去重：{before - len(df_master)} 列移除，剩餘 {len(df_master)} 列")
+    print(f"  Count 統計：max={df_master['Count'].max()}、平均={df_master['Count'].mean():.1f}")
 
     # 排序
     df_master = df_master.sort_values('source_file').reset_index(drop=True)

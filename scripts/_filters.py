@@ -91,6 +91,78 @@ def model_key(s) -> str:
     return t
 
 
+# === Part 語意合併清單（明確 allowlist，僅套用於 Lube Chart / NB；OEM 不適用） ===
+
+_HYD_TO_HYDRAULIC_SYSTEM = {
+    'HYDRAULIC',
+    'HYDRAULIC MEDIUM',
+    'HYDRAULIC OIL',
+    'HYDRAULIC FLUID',
+    'HYD OIL',
+    'HYD. OIL',
+    'HYD.SYSTEM',
+    'HYD.MEDIUM',
+    'HYDR. SYSTEM',
+    'HYDR.OIL',
+    'HYDR.SYSTEM OIL',
+    'HYDRULIC SYSTEM',
+    'HYDRAULIC SYTEM',
+    'HYDRAULI SYSTEM',
+    'HYDRAULIC MEDIIUM',
+    'A.HYDRAULIC SYSTEM',
+    'HYDRAULIC OIL(SYSTEM OIL)',
+    'HYDRAULIC OIL (UNIT)',
+    'HYDRAULIC SYSTEM (SAME OIL AS SYSTEM)',
+    'HYDRAULIC SYSTEM (SAME AS SYSTEM)',
+    'HYDRAULIC MEDIUM (SAME OIL AS SYSTEM)',
+    'HYDRAULIC SYSTEM (EAL)',
+    'HYDRAULIC (EAL)',
+}
+
+_GEAR_TO_ENCLOSED_GEAR = {
+    'GEAR',
+    'GEARS',
+    'GEAR BOX',
+    'GEARBOX',
+    'GEAR UNIT',
+    'GEAR OIL',
+    'ENCLOSED GEAR',
+    'ENCLOSED GEARS',
+    'ENCLOSED GEAR-',
+    'ENCLSOED GEAR',
+    'INCLOSED GEAR',
+    'ENCLOSED GEAR BOX',
+    'ENCLOSE GEAR BOX',
+    'LUBE.OIL FOR GEARBOX',
+    'B.LUBE. OIL FOR GEAR BOX',
+    'GEARBOX (NOTE 2)',
+    'GEARBOX (REMARK 1)',
+    'GEARBOX (REMARK 3)',
+    'GEARBOX(REMARK 2)',
+    'STEERING GEAR',
+    'TURNING GEAR',
+    'TURING GEAR',
+    'REDUCTION GEAR',
+}
+
+
+def apply_part_semantic_merge(s):
+    """將通用同義詞合併為標準術語：
+    - HYDRAULIC / HYD.MEDIUM / 縮寫 / 錯字 → HYDRAULIC SYSTEM
+    - GEAR / GEARBOX / GEAR BOX / 通用齒輪敘述 → ENCLOSED GEAR
+    保留：HYDRAULIC STARTER/BRAKE/PUMP 等獨立設備、含燃料等級 (EAL)/(VLSFO) 標記、
+    OPEN GEAR / STEERING GEAR / 用途特定齒輪箱（HOISTING / SLEWING / WINCH 等）。
+    僅套用於 Lube Chart 與 NB；OEM 不呼叫此函式。"""
+    if not isinstance(s, str):
+        return s
+    t = s.strip().upper()
+    if t in _HYD_TO_HYDRAULIC_SYSTEM:
+        return 'HYDRAULIC SYSTEM'
+    if t in _GEAR_TO_ENCLOSED_GEAR:
+        return 'ENCLOSED GEAR'
+    return s
+
+
 def canonicalize_column(series, key_fn):
     """
     給定一個 pandas Series 與 key_fn，回傳 (canonical_series, merge_groups)。

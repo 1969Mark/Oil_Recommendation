@@ -30,7 +30,7 @@ LOG_FILE   = os.path.join(LOG_DIR, 'update_log.txt')
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor
+from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor, apply_part_semantic_merge
 
 # Excel 色彩
 HDR_BG  = '1F3864'
@@ -1918,7 +1918,7 @@ def main():
     else:
         df_master = pd.DataFrame()
 
-    master_cols = COLS + ['Source', 'source_file']
+    master_cols = COLS + ['Count', 'Source', 'source_file']
 
     stats = {'added': [], 'updated': [], 'failed': []}
     report_summary = []
@@ -2051,6 +2051,11 @@ def main():
     df_master = df_master[~df_master['Lubricant'].str.contains('TALUSIA LS 25', na=False)]
     print(f"  排除 TALUSIA LS 25：{before - len(df_master)} 列移除")
 
+    # Part 語意合併（HYDRAULIC 同義詞 → HYDRAULIC SYSTEM；通用齒輪 → ENCLOSED GEAR）
+    before_part = df_master['Part to be lubricated'].copy()
+    df_master['Part to be lubricated'] = df_master['Part to be lubricated'].map(apply_part_semantic_merge)
+    print(f"  Part 語意合併（HYDRAULIC/GEAR）：{(before_part != df_master['Part to be lubricated']).sum()} 列改寫")
+
     # Maker / Model / Part 正規化
     new_makers, mk_groups = canonicalize_column(df_master['Maker'], maker_key)
     new_models, md_groups = canonicalize_column(df_master['Model / Type'], model_key)
@@ -2059,6 +2064,9 @@ def main():
     df_master['Model / Type'] = new_models
     df_master['Part to be lubricated'] = new_parts
     print(f"  Maker 正規化：合併 {len(mk_groups)} 群組；Model 正規化：合併 {len(md_groups)} 群組；Part 正規化：合併 {len(pt_groups)} 群組")
+
+    # 計算 Count
+    df_master['Count'] = df_master.groupby(DEDUP_KEYS, dropna=False)['Maker'].transform('size').fillna(1).astype(int)
 
     # 去重
     before = len(df_master)

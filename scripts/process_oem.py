@@ -296,15 +296,18 @@ def write_oem_master(df_source, df_manual, path):
     """
     wb = Workbook()
 
-    source_cols = COLS + ['Source', 'source_file', 'source_sheet']
-    manual_cols = COLS + ['Source', 'source_file', 'source_sheet']
+    source_cols = COLS + ['Count', 'Source', 'source_file', 'source_sheet']
+    manual_cols = COLS + ['Count', 'Source', 'source_file', 'source_sheet']
 
     def write_sheet(ws, df, cols, color):
         ws.freeze_panes = 'A2'
         # 補齊欄位
         for col in cols:
             if col not in df.columns:
-                df[col] = ''
+                df[col] = '' if col != 'Count' else 1
+        # 缺值補 1（manual_data 與舊資料補齊）
+        if 'Count' in df.columns:
+            df['Count'] = df['Count'].apply(lambda v: 1 if (pd.isna(v) or str(v).strip() in ('', '0')) else int(v))
         for ci, col in enumerate(cols, 1):
             c = ws.cell(row=1, column=ci, value=col)
             c.font = Font(name='Arial', bold=True, color='FFFFFF', size=10)
@@ -629,12 +632,15 @@ def main():
         df_source['Model / Type'] = new_models
         print(f"  Maker 正規化：合併 {len(mk_groups)} 群組；Model 正規化：合併 {len(md_groups)} 群組")
 
+        # 計算 Count
+        df_source['Count'] = df_source.groupby(DEDUP_KEYS, dropna=False)['Maker'].transform('size').fillna(1).astype(int)
+
         before = len(df_source)
         df_source = df_source.drop_duplicates(subset=DEDUP_KEYS)
         print(f"  去重：{before - len(df_source)} 列移除，剩餘 {len(df_source)} 列")
 
     # 確保所有欄位存在
-    source_cols = COLS + ['Source', 'source_file', 'source_sheet']
+    source_cols = COLS + ['Count', 'Source', 'source_file', 'source_sheet']
     for col in source_cols:
         if col not in df_source.columns:
             df_source[col] = ''

@@ -1,10 +1,10 @@
 {
-  "last_updated": "2026-04-26T10:36:31",
+  "last_updated": "2026-04-26T12:06:46",
   "failed_files": {
     "oem/MAN ES_Marine Engine Programme.pdf": {
       "source": "oem",
-      "first_failed_at": "2026-04-26T10:30:35",
-      "last_failed_at": "2026-04-26T10:30:35",
+      "first_failed_at": "2026-04-26T11:50:32",
+      "last_failed_at": "2026-04-26T11:50:32",
       "retry_count": 0,
       "error_type": "AI_REVIEW_PENDING",
       "error_message": "無結構化表格，已提取 231 頁文字，待 Claude AI 審閱後確認寫入 manual_data",
@@ -13,8 +13,8 @@
     },
     "oem/MAN ES_SL2023-737.pdf": {
       "source": "oem",
-      "first_failed_at": "2026-04-26T10:30:35",
-      "last_failed_at": "2026-04-26T10:30:35",
+      "first_failed_at": "2026-04-26T11:50:32",
+      "last_failed_at": "2026-04-26T11:50:32",
       "retry_count": 0,
       "error_type": "AI_REVIEW_PENDING",
       "error_message": "無結構化表格，已提取 9 頁文字，待 Claude AI 審閱後確認寫入 manual_data",

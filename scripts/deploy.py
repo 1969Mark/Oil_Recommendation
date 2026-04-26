@@ -33,7 +33,7 @@ OUTPUT_DIR = BASE_DIR / "output"
 LOG_FILE = BASE_DIR / "logs" / "update_log.txt"
 APP_HTML = BASE_DIR / "lube_query_app.html"
 
-DISPLAY_COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant', 'Source']
+DISPLAY_COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant', 'Count', 'Source']
 SRC_ORDER = {'OEM': 0, 'NB': 1, 'LUBE CHART': 2}
 
 REQUIRED_FILES = [
@@ -72,7 +72,7 @@ def rebuild_html() -> bool:
             df = pd.read_excel(lube_master, sheet_name='lube_chart')
             for col in DISPLAY_COLS:
                 if col not in df.columns:
-                    df[col] = ''
+                    df[col] = 1 if col == 'Count' else ''
             frames.append(df[DISPLAY_COLS].copy())
         except Exception as e:
             print(f"  ⚠ 讀取 lube_chart_master.xlsx 失敗：{e}")
@@ -82,7 +82,7 @@ def rebuild_html() -> bool:
             df = pd.read_excel(nb_master, sheet_name='nb_master')
             for col in DISPLAY_COLS:
                 if col not in df.columns:
-                    df[col] = ''
+                    df[col] = 1 if col == 'Count' else ''
             frames.append(df[DISPLAY_COLS].copy())
         except Exception as e:
             print(f"  ⚠ 讀取 nb_master.xlsx 失敗：{e}")
@@ -99,7 +99,7 @@ def rebuild_html() -> bool:
         df_oem = pd.concat([df_src, df_man], ignore_index=True)
         for col in DISPLAY_COLS:
             if col not in df_oem.columns:
-                df_oem[col] = ''
+                df_oem[col] = 1 if col == 'Count' else ''
         frames.append(df_oem[DISPLAY_COLS].copy())
 
     if not frames:
@@ -108,7 +108,10 @@ def rebuild_html() -> bool:
 
     df_all = pd.concat(frames, ignore_index=True).copy()
     for col in DISPLAY_COLS:
-        df_all.loc[:, col] = df_all[col].fillna('').astype(str).str.strip()
+        if col == 'Count':
+            df_all.loc[:, col] = pd.to_numeric(df_all[col], errors='coerce').fillna(1).astype(int)
+        else:
+            df_all.loc[:, col] = df_all[col].fillna('').astype(str).str.strip()
 
     # 排序：OEM > NB > LUBE CHART，再依 Maker / Model 字母順序
     df_all.loc[:, '_order'] = df_all['Source'].map(SRC_ORDER).fillna(3).astype(int)
