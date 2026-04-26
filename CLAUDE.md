@@ -11,19 +11,17 @@
 Oil_Recommendation/
 ├── CLAUDE.md                     ← 本檔案（Cowork 自動讀取）
 │
-├── data/
-│   ├── lube-chart/               ← Lube Chart CSV 檔案（隨時可新增）
-│   ├── nb/                       ← Machinery List PDF 檔案（隨時可新增）
-│   └── oem/                      ← OEM Excel / PDF 檔案（隨時可新增）
+├── LubeChart_data/               ← Lube Chart CSV 檔案（隨時可新增）
+├── NB_data/                      ← Machinery List PDF 檔案（隨時可新增）
+├── OEM_data/                     ← OEM Excel / PDF 檔案（隨時可新增）
 │
 ├── output/
 │   ├── lube_chart_master.xlsx    ← Lube Chart 彙整結果
 │   ├── nb_master.xlsx            ← NB Machinery 彙整結果
-│   ├── oem_master.xlsx           ← OEM 規格彙整結果（含 source_data + manual_data 兩個 sheet）
-│   ├── oem_combined.json         ← 部署用：source_data + manual_data 合併後的輸出
+│   ├── oem_master.xlsx           ← OEM 規格彙整結果（只有 manual_data sheet，由 AI 審閱寫入）
+│   ├── pending_ai_review/        ← OEM 待 AI 審閱：[檔名]_pending.json（含全文文字）
 │   └── parse_report/
-│       ├── nb_[檔名]_report.xlsx  ← NB PDF 解析核對報告（每個 PDF 一份）
-│       └── oem_[檔名]_report.xlsx ← OEM PDF 解析核對報告（每個 PDF 一份）
+│       └── nb_[檔名]_report.xlsx  ← NB PDF 解析核對報告（每個 PDF 一份）
 │
 ├── registry/
 │   ├── lube_chart_registry.json  ← Lube Chart 已處理檔案記錄
@@ -32,16 +30,27 @@ Oil_Recommendation/
 │   └── failed_registry.json      ← 所有失敗檔案的統一記錄
 │
 ├── scripts/
+│   ├── _config.py                ← 常數集中：路徑、Excel 色彩、欄位、master/registry 檔名
+│   ├── _common.py                ← 共用函式：sha256、Registry 讀寫、log、Excel 樣式
+│   ├── _filters.py               ← 共用過濾／正規化規則（三支 process 腳本共用）
 │   ├── process_lube_chart.py     ← Lube Chart 增量處理腳本
-│   ├── process_nb.py             ← NB 增量處理腳本
+│   ├── process_nb.py             ← NB 增量處理腳本（流程 + I/O）
+│   ├── _nb_detect.py             ← NB 格式偵測（Format A~N，detect_format()）
+│   ├── _nb_parsers.py            ← NB 各格式解析器 + parse_pdf 分派 + 信心分數
 │   ├── process_oem.py            ← OEM 增量處理腳本
 │   └── deploy.py                 ← GitHub push + Vercel 部署
+│
+├── tests/
+│   ├── run_all.py                ← 一鍵執行所有測試
+│   ├── test_common.py            ← _common.py 的單元測試
+│   └── test_filters.py           ← _filters.py 的單元測試（115+ cases）
 │
 ├── logs/
 │   └── update_log.txt            ← 每次更新紀錄（時間戳記 + 異動摘要）
 │
 ├── .gitignore                    ← Git 排除清單（原始資料夾、暫存檔等）
-└── lube_query_app.html           ← 前端查詢 App（部署至 Vercel）
+├── lube_query_app.html           ← 前端查詢 App 樣板（靜態，部署至 Vercel）
+└── output/app_data.js            ← App 資料（DATA + MAKERS，由 deploy.py 產生）
 ```
 
 ---
@@ -204,8 +213,8 @@ for file in files_to_process:
 對照原始 PDF 同一頁，確認資料是否正確
          ↓
 有錯誤？→ 兩種處理方式：
-  A. 直接在 master Excel 的 source_data 手動修正該列（快速）
-  B. 若是 OEM 且原始檔案有問題 → 放入 manual_data 補充正確資料
+  A. 直接在 master Excel 手動修正該列（快速；NB / Lube Chart 適用）
+  B. 若是 OEM 資料 → 修改 manual_data 對應列即可
 沒錯誤？→ 不需要做任何事
 ```
 
@@ -232,14 +241,14 @@ for file in files_to_process:
 
 ## 🗂️ Data Source 處理規格
 
-### 1. Lube Chart (`data/lube-chart/`)
+### 1. Lube Chart (`LubeChart_data/`)
 
 - 格式：CSV
 - Registry：`registry/lube_chart_registry.json`
 - 輸出：`output/lube_chart_master.xlsx`
 - 處理邏輯：
   1. 讀取 registry，取得已處理清單
-  2. 掃描 `data/lube-chart/` 所有 `.csv`，找出需處理的新/異動檔案
+  2. 掃描 `LubeChart_data/` 所有 `.csv`，找出需處理的新/異動檔案
   3. 讀取現有 `lube_chart_master.xlsx`（若存在）
   4. 對每個需處理的檔案：
      - 若為異動檔：先從 master 中移除該 `source_file` 的舊資料，再插入新解析結果
@@ -249,7 +258,7 @@ for file in files_to_process:
   6. 寫回 `lube_chart_master.xlsx`
   7. 更新 registry（只更新成功處理的檔案）
 
-### 2. NB Machinery List (`data/nb/`)
+### 2. NB Machinery List (`NB_data/`)
 
 - 格式：PDF
 - Registry：`registry/nb_registry.json`
@@ -288,7 +297,7 @@ for file in files_to_process:
 
 #### 🆕 新增 NB PDF 的前置流程（強制）
 
-當 `data/nb/` 出現 registry 中尚未登記的新檔案時，**Claude 不得直接執行 `process_nb.py`**，必須先依序完成以下步驟：
+當 `NB_data/` 出現 registry 中尚未登記的新檔案時，**Claude 不得直接執行 `process_nb.py`**，必須先依序完成以下步驟：
 
 1. **列出新檔名**給使用者，並先暫停解析
 2. **請使用者提供原稿截圖**（至少包含表頭與前幾列資料），說明各欄位對應關係：
@@ -307,7 +316,7 @@ for file in files_to_process:
 #### 處理邏輯
 
   1. 讀取 registry，取得已處理清單
-  2. 掃描 `data/nb/` 所有 `.pdf`，找出需處理的新/異動檔案
+  2. 掃描 `NB_data/` 所有 `.pdf`，找出需處理的新/異動檔案
   3. 讀取現有 `nb_master.xlsx`（若存在）
   4. 對每個需處理的檔案：
      - 使用 `pdfplumber` 擷取表格；無結構化表格時改解析純文字
@@ -320,45 +329,59 @@ for file in files_to_process:
   6. 寫回 `nb_master.xlsx`
   7. 更新 registry
 
-### 3. OEM Data (`data/oem/`)
+### 3. OEM Data (`OEM_data/`)
 
 - 格式：Excel (`.xlsx`, `.xls`) 或 PDF
 - Registry：`registry/oem_registry.json`
-- 輸出：`output/oem_master.xlsx`（含兩個 sheet，見下方說明）
+- 輸出：`output/oem_master.xlsx`（只有 `manual_data` 一個 sheet）
+
+#### 設計原則：AI 審閱模式
+
+OEM 原始檔案多為非結構化敘述（OEM 技術文件、規格通報等），程式自動解析準確度低；
+故 OEM **不走自動表格解析**，所有檔案統一走 AI 審閱流程：
+
+```
+OEM_data/檔案.pdf
+    ↓ process_oem.py
+output/pending_ai_review/檔案_pending.json   (提取全文文字)
+    ↓ 使用者執行「審閱OEM」
+Claude 彙整 → 向使用者確認 → 寫入 manual_data sheet
+```
 
 #### oem_master.xlsx Sheet 結構
 
 | Sheet 名稱 | 維護方式 | 說明 |
 |---|---|---|
-| `source_data` | 程式自動產生 | 從原始檔案解析的所有資料 |
-| `manual_data` | 使用者手動維護 | 人工補充的資料，程式永遠不碰 |
+| `manual_data` | 使用者手動維護 + AI 審閱寫入 | 程式正常執行時不讀寫；僅「審閱OEM」確認後 append |
 
 `manual_data` sheet 欄位規範：
-- 欄位結構與 `source_data` 相同
-- `source_file` 欄位固定填入 `"manual"`
-- `source_sheet` 欄位可填入備註說明該筆資料來源（例如供應商名稱）
-- 若 `oem_master.xlsx` 不存在時，程式自動建立兩個空 sheet
+- 欄位：`Equipment, Maker, Model / Type, Part to be lubricated, Lubricant, Count, Source, source_file, source_sheet`
+- `source_file`：固定填 `"manual"`
+- `source_sheet`：填原始檔案名稱（不含副檔名）或備註說明
+- `Source`：固定填 `"OEM"`
+- 所有文字欄位全大寫
+- 若 `oem_master.xlsx` 不存在，程式自動建立並從 `OEM_oil_recommendation.xlsx` 載入起始內容（首次 bootstrap）
 
-#### 處理邏輯
+#### 處理邏輯（`更新OEM`）
 
 1. 讀取 registry，取得已處理清單
-2. 掃描 `data/oem/` 所有 `.xlsx`、`.xls`、`.pdf`，找出需處理的新/異動檔案
-3. 讀取現有 `oem_master.xlsx` 的 `source_data` sheet（若存在）
-4. **絕對不讀取、不修改、不覆蓋 `manual_data` sheet**
-5. 對每個需處理的檔案：
-   - Excel：讀取所有 sheets（Excel 不需信心分數）
-   - PDF：使用 `pdfplumber` 擷取表格，每列標記 `confidence` 和 `confidence_reason`
-   - **`confidence = low` 的記錄不寫入 master，僅保留於 parse_report**
-   - 若為異動檔：先從 `source_data` 移除該來源舊資料，再插入新資料（high/medium 列）
-   - 若為新增檔：append 至 `source_data`（high/medium 列）
-   - PDF 檔案額外產生 `output/parse_report/oem_[檔名]_report.xlsx`（含所有列，包含 low）
-6. 去除 `source_data` 中的完全重複列
-7. 寫回 `oem_master.xlsx` 的 `source_data` sheet
-8. 更新 registry
+2. 掃描 `OEM_data/` 所有 `.xlsx`、`.xls`、`.pdf`，找出需處理的新/異動檔案
+3. 讀取現有 `oem_master.xlsx` 的 `manual_data` sheet（保留原內容，不做任何過濾或正規化）
+4. 對每個需處理的檔案：
+   - PDF：使用 `pdfplumber` 提取每頁文字
+   - Excel：讀取每個 sheet 的儲存格內容轉為文字
+   - 全文內容存為 `output/pending_ai_review/[檔名]_pending.json`，狀態 `pending`
+   - 寫入 `failed_registry.json` 標記為 `ai_review_pending`（不算失敗，不自動重試）
+   - 同時更新 success registry（避免每次重新提取文字）
+   - 若無可讀文字（掃描版 / 加密）→ `EMPTY_DATA` 失敗
+5. 寫回 `oem_master.xlsx` 的 `manual_data` sheet（內容不變，僅重新套用樣式）
+6. 提示使用者執行「審閱OEM」處理新增的 pending 檔案
 
-#### OEM 業務規則
+> ⚠️ 程式絕不直接寫入 `manual_data`；只有「審閱OEM」工作流程在使用者確認後才 append。
 
-以下規則適用於 `process_oem.py` 解析及 `manual_data` 手動維護時的欄位填寫規範：
+#### OEM 業務規則（`manual_data` 欄位填寫規範）
+
+由 Claude 在「審閱OEM」工作流程中遵守，將 AI 解讀後的資料填入 `manual_data`：
 
 **MAN B&W 汽缸油命名規範**
 - 汽缸油統一以 `CYLINDER OIL` 標記於 `Part to be lubricated` 欄位
@@ -368,14 +391,10 @@ for file in files_to_process:
 **WINGD / J-ENG UEC 引擎分類**
 - WINGD（原 Wärtsilä 二行程）引擎的潤滑油規格獨立歸檔，不與 MAN B&W 混用
 - J-ENG UEC 系列引擎依型號前綴分類：`UEC` 系列統一標記 `source_sheet = "J-ENG UEC"`
-- 各 OEM 廠家的推薦油品若與 Lube Chart 資料衝突，以 OEM 資料為準（`manual_data` 優先於 `source_data`）
 
 #### 彙整輸出（供部署用）
 
-部署前，`deploy.py` 會將 `source_data` 和 `manual_data` 合併成單一資料集輸出給前端：
-- 合併順序：`source_data` 在前，`manual_data` 在後
-- 合併結果不覆蓋 `oem_master.xlsx`，另存為 `output/oem_combined.json`（或前端所需格式）
-- `manual_data` 的每列保留 `source_file = "manual"` 標記，前端可據此識別資料來源
+`deploy.py` 直接讀取 `oem_master.xlsx` 的 `manual_data` sheet，併入前端資料集（無需合併兩 sheet）。
 
 #### App 查詢結果排序規則
 
@@ -438,7 +457,7 @@ for file in files_to_process:
 
 - **Maker 比對鍵**：移除空白 / 連字號 / 句點 / 引號（保留 `&` 與 `/`）。例：`M.H.I.` / `MHI` / `M.H.I` → 同一鍵
 - **Model 比對鍵**：移除空白 / 連字號 / 句點 / 括號 / 引號；`=` 視為 `-`（OCR 錯誤）。例：`P-100` / `P 100` / `P100` / `P.100` → 同一鍵；`(R-404A)` / `R404A` → 同一鍵
-- **Part 比對鍵**：使用同一 `model_key`，**僅套用於 Lube Chart 與 NB**；OEM 的 `source_data` 與 `manual_data` 一律保留原文不正規化（OEM 資料以原廠規格為準，避免人工維護內容被改寫）。例：`BEARINGS` / `BEARINGS-` → 同一鍵；`GEAR BOX` / `GEARBOX` → 同一鍵；`CYLINDERS (HFO)` / `CYLINDERS - HFO` → 同一鍵
+- **Part 比對鍵**：使用同一 `model_key`，**僅套用於 Lube Chart 與 NB**；OEM 的 `manual_data` 一律保留原文不正規化（OEM 資料以原廠規格為準，避免人工維護內容被改寫）。例：`BEARINGS` / `BEARINGS-` → 同一鍵；`GEAR BOX` / `GEARBOX` → 同一鍵；`CYLINDERS (HFO)` / `CYLINDERS - HFO` → 同一鍵
 - **Part 語意合併**（`apply_part_semantic_merge()`，僅 Lube Chart / NB）：
   - **HYDRAULIC 同義詞 → `HYDRAULIC SYSTEM`**：合併 `HYDRAULIC` / `HYDRAULIC MEDIUM` / `HYDRAULIC OIL` / `HYDRAULIC FLUID` / `HYD.SYSTEM` / `HYD.MEDIUM` / `HYDR. SYSTEM` 等同義詞與縮寫/錯字；亦含 `HYDRAULIC SYSTEM (EAL)` / `HYDRAULIC (EAL)`。**保留**：`HYDRAULIC STARTER`、`HYDRAULIC BRAKE`、`HYDRAULIC PUMP`、`HYDRAULIC POWER UNIT (HPU)` 等獨立設備；`HYDRAULIC SYSTEM (0.5%S)` / `(VLSFO)` / `(HSHFO)` 等其他燃料等級標記者；`STEERING HYDRAULIC SYSTEM` 等用途特定者
   - **通用齒輪 → `ENCLOSED GEAR`**：合併 `GEAR` / `GEARS` / `GEAR BOX` / `GEARBOX` / `GEAR UNIT` / `GEAR OIL` / `ENCLOSED GEAR(S)` 變體與錯字；亦含 `STEERING GEAR` / `TURNING GEAR` / `REDUCTION GEAR`。**保留**：`OPEN GEAR` 系列（與封閉齒輪潤滑要求不同）；`WORM GEAR` / `TIMING GEAR` / `HEAD GEAR` 等其他特定機構；`HOISTING GEARBOX` / `SLEWING GEARBOX` / `WINCH GEARBOX` / `BURNER GEARBOX` 等用途特定齒輪箱；含其他組合或限定詞者（如 `SLEWING REDUCTION GEAR`、`BRAKE SYSTEM REDUCTION GEAR`、`TURNING GEAR (CHAIN)`）
@@ -557,10 +576,11 @@ for file in files_to_process:
 **包含**以下項目：
 
 - `output/lube_chart_master.xlsx`、`nb_master.xlsx`、`oem_master.xlsx`
+- `output/app_data.js`（前端載入的 DATA + MAKERS，由 deploy.py 產生）
 - `registry/*.json`
 - `logs/update_log.txt`
 - `scripts/*.py`
-- `lube_query_app.html`
+- `lube_query_app.html`（靜態樣板；不再隨資料更新而修改）
 - `CLAUDE.md`、`.gitignore`
 
 ### 部署流程（deploy.py）
@@ -600,7 +620,7 @@ Windows 可執行 `git config credential.helper store` 讓系統記住 PAT。
 ```
 1. 將新資料檔放入對應資料夾（LubeChart_data/ / NB_data/ / OEM_data/）
 2. 告訴 Claude：「更新全部」（或指定來源）
-3. Claude 執行增量處理，更新 master Excel + lube_query_app.html
+3. Claude 執行增量處理，更新 master Excel；deploy.py 接著重建 output/app_data.js（HTML 樣板不動）
 4. 使用者在本機終端機執行：python scripts/deploy.py
 5. Vercel 自動部署，數分鐘內線上版本更新
 ```
@@ -639,7 +659,7 @@ Windows 可執行 `git config credential.helper store` 讓系統記住 PAT。
 
 ### 步驟 4：寫入 manual_data
 
-確認後，Claude 用 Python（`openpyxl`）開啟 `output/oem_master.xlsx`，將確認資料 **append** 到 `manual_data` sheet（絕不碰 `source_data`），格式遵守 Excel 輸出格式規範：
+確認後，Claude 用 Python（`openpyxl`）開啟 `output/oem_master.xlsx`，將確認資料 **append** 到 `manual_data` sheet，格式遵守 Excel 輸出格式規範：
 - `source_file` 填 `"manual"`
 - `source_sheet` 填原始 PDF 檔名（不含副檔名）
 - `Source` 填 `"OEM"`
@@ -670,13 +690,13 @@ pending JSON 的 `status` 欄位狀態流：
 
 ## 🛡️ 安全規則
 
-1. 永遠不刪除 `data/` 下的任何原始檔案
+1. 永遠不刪除 `LubeChart_data/`、`NB_data/`、`OEM_data/` 下的任何原始檔案
 2. 永遠不清空 registry，只做 update/append（重建指令除外，且須先確認）
-3. 永遠不修改 `oem_master.xlsx` 的 `manual_data` sheet，任何寫入操作只能針對 `source_data` sheet
+3. `process_oem.py` 永遠不修改 `oem_master.xlsx` 的 `manual_data` 內容（僅在不存在時 bootstrap 建立、或重寫時保留原內容並重套樣式）；只有「審閱OEM」工作流程在使用者確認後才 append 新列
 4. 任何破壞性操作執行前，Claude 必須先向使用者說明影響並等待確認
 5. Script 執行失敗時，不更新成功 registry，改寫入 `failed_registry.json`
 6. `WRITE_ERROR` 發生時立即中止執行，避免 master Excel 資料不一致
-7. 若 master Excel 不存在，自動從零建立（含 `source_data` 和 `manual_data` 兩個空 sheet），不中止流程
+7. 若 master Excel 不存在，自動從零建立；OEM 從 `OEM_oil_recommendation.xlsx` bootstrap 至 `manual_data`，其他來源建立空 sheet，不中止流程
 8. 若 `scripts/` 下的腳本不存在，Claude 應自動依本檔規格產生這些腳本後再執行
 9. 每次執行結束後，若有 `manual_required` 檔案，Claude 必須在對話中主動提醒使用者
 

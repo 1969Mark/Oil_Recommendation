@@ -5,77 +5,29 @@ process_lube_chart.py
 依 CLAUDE.md 規格：registry 比對、標準化、過濾、格式化 Excel 輸出。
 """
 
-import os, sys, json, hashlib, glob, re
+import os, sys, glob, re
 from datetime import datetime
 import pandas as pd
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 
-# ── 路徑設定 ────────────────────────────────────────────────────
-PROJECT  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LC_DIR   = os.path.join(PROJECT, 'LubeChart_data')
-OUT_DIR  = os.path.join(PROJECT, 'output')
-REG_DIR  = os.path.join(PROJECT, 'registry')
-LOG_DIR  = os.path.join(PROJECT, 'logs')
-MASTER   = os.path.join(OUT_DIR, 'lube_chart_master.xlsx')
-REG_FILE = os.path.join(REG_DIR, 'lube_chart_registry.json')
-FAIL_REG = os.path.join(REG_DIR, 'failed_registry.json')
-LOG_FILE = os.path.join(LOG_DIR, 'update_log.txt')
-
-COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
-DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor, strip_power_spec_parens, apply_part_semantic_merge, apply_compressor_part_rule, strip_non_fuel_parens
-
-# ── Excel 色彩 ──────────────────────────────────────────────────
-HDR_BG   = '1F3864'
-ODD_BG   = 'FFFFFF'
-EVEN_BG  = 'EBF3FB'
-LC_COLOR = '375623'
-
-# ── Registry 工具 ───────────────────────────────────────────────
-def sha256(path):
-    h = hashlib.sha256()
-    with open(path, 'rb') as f:
-        for chunk in iter(lambda: f.read(65536), b''):
-            h.update(chunk)
-    return h.hexdigest()
-
-def load_registry(path):
-    if os.path.exists(path):
-        with open(path, encoding='utf-8') as f:
-            return json.load(f)
-    return {'last_updated': '', 'processed_files': {}}
-
-def save_registry(reg, path):
-    reg['last_updated'] = datetime.now().isoformat(timespec='seconds')
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(reg, f, indent=2, ensure_ascii=False)
-
-def load_failed_registry():
-    if os.path.exists(FAIL_REG):
-        with open(FAIL_REG, encoding='utf-8') as f:
-            return json.load(f)
-    return {'last_updated': '', 'failed_files': {}}
-
-def save_failed_registry(freg):
-    freg['last_updated'] = datetime.now().isoformat(timespec='seconds')
-    with open(FAIL_REG, 'w', encoding='utf-8') as f:
-        json.dump(freg, f, indent=2, ensure_ascii=False)
-
-def needs_processing(fname, fpath, reg):
-    """判斷檔案是否需要重新處理"""
-    if fname not in reg['processed_files']:
-        return True, 'new'
-    rec = reg['processed_files'][fname]
-    stat = os.stat(fpath)
-    mtime = datetime.fromtimestamp(stat.st_mtime).isoformat(timespec='seconds')
-    if mtime != rec.get('file_mtime', ''):
-        return True, 'mtime_changed'
-    if sha256(fpath) != rec.get('sha256', ''):
-        return True, 'sha256_changed'
-    return False, 'unchanged'
+from _config import (
+    LC_DIR, OUT_DIR, LOG_DIR,
+    HDR_BG, LC_COLOR, COLS, DEDUP_KEYS,
+    LC_MASTER as MASTER, LC_REG as REG_FILE,
+)
+from _common import (
+    sha256, load_registry, save_registry, load_failed_registry,
+    save_failed_registry, needs_processing, file_metadata,
+    append_log, write_styled_sheet,
+)
+from _filters import (
+    is_invalid_model, canonicalize_column, maker_key, model_key,
+    strip_quantity_descriptor, strip_power_spec_parens,
+    apply_part_semantic_merge, apply_compressor_part_rule, strip_non_fuel_parens,
+)
 
 # ── Maker 標準化 ────────────────────────────────────────────────
 def build_maker_norm_map(maker_series):
@@ -167,38 +119,8 @@ def write_excel(df, path):
     wb = Workbook()
     ws = wb.active
     ws.title = 'lube_chart'
-    ws.freeze_panes = 'A2'
-
     all_cols = COLS + ['Count', 'Source', 'source_file']
-    # 標題列
-    for ci, col in enumerate(all_cols, 1):
-        c = ws.cell(row=1, column=ci, value=col)
-        c.font = Font(name='Arial', bold=True, color='FFFFFF', size=10)
-        c.fill = PatternFill('solid', fgColor=HDR_BG)
-        c.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-
-    for ri, (_, row) in enumerate(df.iterrows(), start=2):
-        bg = ODD_BG if ri % 2 == 1 else EVEN_BG
-        for ci, col in enumerate(all_cols, 1):
-            val = str(row[col]) if pd.notna(row.get(col, '')) else ''
-            c = ws.cell(row=ri, column=ci, value=val)
-            # Source 欄顏色
-            if col == 'Source':
-                color = LC_COLOR
-                c.font = Font(name='Arial', size=9, color=color, bold=True)
-            else:
-                c.font = Font(name='Arial', size=9)
-            c.fill = PatternFill('solid', fgColor=bg)
-            c.alignment = Alignment(vertical='center', wrap_text=True)
-
-    # 欄寬自動調整
-    for ci, col in enumerate(all_cols, 1):
-        if col in df.columns:
-            max_len = max((len(str(v)) for v in df[col].fillna('') if v), default=len(col))
-        else:
-            max_len = len(col)
-        ws.column_dimensions[get_column_letter(ci)].width = min(max(max_len + 2, 10), 50)
-
+    write_styled_sheet(ws, df, all_cols, source_color=LC_COLOR)
     wb.save(path)
 
 # ── 正規化合併報告 ─────────────────────────────────────────────
@@ -242,12 +164,6 @@ def _write_normalize_report(maker_groups, model_groups, part_groups=None):
     msg += "）"
     print(msg)
 
-
-# ── Log 工具 ────────────────────────────────────────────────────
-def append_log(summary):
-    os.makedirs(LOG_DIR, exist_ok=True)
-    with open(LOG_FILE, 'a', encoding='utf-8') as f:
-        f.write(summary + '\n')
 
 # ── 主流程 ──────────────────────────────────────────────────────
 def main():
@@ -333,12 +249,9 @@ def main():
             df_master = pd.concat([df_master, df], ignore_index=True)
 
             # 更新 registry
-            stat = os.stat(fpath)
             reg['processed_files'][fname] = {
                 'processed_at': now.isoformat(timespec='seconds'),
-                'file_size_bytes': stat.st_size,
-                'file_mtime': datetime.fromtimestamp(stat.st_mtime).isoformat(timespec='seconds'),
-                'sha256': sha256(fpath)
+                **file_metadata(fpath),
             }
             # 從失敗 registry 移除（若曾失敗）
             fail_key = f'lube_chart/{fname}'
