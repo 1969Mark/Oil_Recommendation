@@ -2051,12 +2051,14 @@ def main():
     df_master = df_master[~df_master['Lubricant'].str.contains('TALUSIA LS 25', na=False)]
     print(f"  排除 TALUSIA LS 25：{before - len(df_master)} 列移除")
 
-    # Maker / Model 正規化
+    # Maker / Model / Part 正規化
     new_makers, mk_groups = canonicalize_column(df_master['Maker'], maker_key)
     new_models, md_groups = canonicalize_column(df_master['Model / Type'], model_key)
+    new_parts,  pt_groups = canonicalize_column(df_master['Part to be lubricated'], model_key)
     df_master['Maker'] = new_makers
     df_master['Model / Type'] = new_models
-    print(f"  Maker 正規化：合併 {len(mk_groups)} 群組；Model 正規化：合併 {len(md_groups)} 群組")
+    df_master['Part to be lubricated'] = new_parts
+    print(f"  Maker 正規化：合併 {len(mk_groups)} 群組；Model 正規化：合併 {len(md_groups)} 群組；Part 正規化：合併 {len(pt_groups)} 群組")
 
     # 去重
     before = len(df_master)

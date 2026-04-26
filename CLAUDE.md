@@ -421,14 +421,15 @@ for file in files_to_process:
   - 移除模式：末尾 `(數字)`、`(數字 SETS/UNITS/PCS/EA/NOS)`、`(X數字)`、`(數字X)`，以及無括號的 ` 數字 SETS/UNITS/PCS/EA/NOS`
   - **不移除**：`(R404A)`、`(M)`、`(EAL)`、`(STB'D SIDE)`、`(99KW@1800RPM)` 等語意性括號內容
 
-### 4. Maker / Model 比對鍵正規化（規則式分群）
+### 4. Maker / Model / Part 比對鍵正規化（規則式分群）
 
 `scripts/_filters.py` 提供 `maker_key()` 與 `model_key()`，三支 process 腳本在去重前呼叫 `canonicalize_column()`：
 
 - **Maker 比對鍵**：移除空白 / 連字號 / 句點 / 引號（保留 `&` 與 `/`）。例：`M.H.I.` / `MHI` / `M.H.I` → 同一鍵
 - **Model 比對鍵**：移除空白 / 連字號 / 句點 / 括號 / 引號；`=` 視為 `-`（OCR 錯誤）。例：`P-100` / `P 100` / `P100` / `P.100` → 同一鍵；`(R-404A)` / `R404A` → 同一鍵
+- **Part 比對鍵**：使用同一 `model_key`，**僅套用於 Lube Chart 與 NB**；OEM 的 `source_data` 與 `manual_data` 一律保留原文不正規化（OEM 資料以原廠規格為準，避免人工維護內容被改寫）。例：`BEARINGS` / `BEARINGS-` → 同一鍵；`GEAR BOX` / `GEARBOX` → 同一鍵；`CYLINDERS (HFO)` / `CYLINDERS - HFO` → 同一鍵
 - **標準形挑選**：每個 key 群組以「出現次數最多」為標準形，同頻取字串較長者
-- **產出報告**：`process_lube_chart.py` 寫出 `output/normalize_report.xlsx`（兩個 sheet：`maker_merged`、`model_merged`），列出所有合併群組供抽查
+- **產出報告**：`process_lube_chart.py` 寫出 `output/normalize_report.xlsx`（三個 sheet：`maker_merged`、`model_merged`、`part_merged`），列出所有合併群組供抽查
 
 ### 5. 去除重複列
 

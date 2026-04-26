@@ -202,8 +202,8 @@ def write_excel(df, path):
     wb.save(path)
 
 # ── 正規化合併報告 ─────────────────────────────────────────────
-def _write_normalize_report(maker_groups, model_groups):
-    """產出 output/normalize_report.xlsx，列出 Maker / Model 被合併的群組。"""
+def _write_normalize_report(maker_groups, model_groups, part_groups=None):
+    """產出 output/normalize_report.xlsx，列出 Maker / Model / Part 被合併的群組。"""
     out_path = os.path.join(OUT_DIR, 'normalize_report.xlsx')
     os.makedirs(OUT_DIR, exist_ok=True)
     wb = Workbook()
@@ -233,8 +233,14 @@ def _write_normalize_report(maker_groups, model_groups):
 
     fill_sheet(wb.active, 'maker_merged', maker_groups)
     fill_sheet(wb.create_sheet(), 'model_merged', model_groups)
+    if part_groups is not None:
+        fill_sheet(wb.create_sheet(), 'part_merged', part_groups)
     wb.save(out_path)
-    print(f"  正規化報告：{out_path}（Maker {len(maker_groups)} 群組、Model {len(model_groups)} 群組）")
+    msg = f"  正規化報告：{out_path}（Maker {len(maker_groups)} 群組、Model {len(model_groups)} 群組"
+    if part_groups is not None:
+        msg += f"、Part {len(part_groups)} 群組"
+    msg += "）"
+    print(msg)
 
 
 # ── Log 工具 ────────────────────────────────────────────────────
@@ -391,17 +397,20 @@ def main():
     df_master = df_master[~df_master['Lubricant'].str.contains('TALUSIA LS 25', na=False)]
     print(f"  排除 TALUSIA LS 25：{before - len(df_master)} 列移除")
 
-    # Maker / Model 正規化（方案 A：規則式比對鍵 + 最高頻原文為標準形）
+    # Maker / Model / Part 正規化（方案 A：規則式比對鍵 + 最高頻原文為標準形）
     new_makers, maker_groups = canonicalize_column(df_master['Maker'], maker_key)
     new_models, model_groups = canonicalize_column(df_master['Model / Type'], model_key)
+    new_parts,  part_groups  = canonicalize_column(df_master['Part to be lubricated'], model_key)
     df_master['Maker'] = new_makers
     df_master['Model / Type'] = new_models
+    df_master['Part to be lubricated'] = new_parts
     print(f"  Maker 正規化：合併 {len(maker_groups)} 群組")
     print(f"  Model 正規化：合併 {len(model_groups)} 群組")
+    print(f"  Part 正規化：合併 {len(part_groups)} 群組")
 
     # 寫出正規化合併報告
     try:
-        _write_normalize_report(maker_groups, model_groups)
+        _write_normalize_report(maker_groups, model_groups, part_groups)
     except Exception as e:
         print(f"  ⚠️  正規化報告寫入失敗（不影響主流程）：{e}")
 
