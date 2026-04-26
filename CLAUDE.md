@@ -418,11 +418,20 @@ for file in files_to_process:
   - X + 數字 / 數字 + X：`X2`、`2X`、`(X3)`、`(3X)`
   - 判斷邏輯：`scripts/_filters.py` 的 `is_quantity_only()`（regex 比對，去括號後僅剩數量描述即視為無效）
 
-### 4. 去除重複列
+### 4. Maker / Model 比對鍵正規化（規則式分群）
 
-唯一鍵：`Maker` + `Model / Type` + `Part to be lubricated` + `Lubricant` 四欄組合，完全相同則去除重複，保留第一筆。
+`scripts/_filters.py` 提供 `maker_key()` 與 `model_key()`，三支 process 腳本在去重前呼叫 `canonicalize_column()`：
 
-### 5. 排除特定潤滑油
+- **Maker 比對鍵**：移除空白 / 連字號 / 句點 / 引號（保留 `&` 與 `/`）。例：`M.H.I.` / `MHI` / `M.H.I` → 同一鍵
+- **Model 比對鍵**：移除空白 / 連字號 / 句點 / 括號 / 引號；`=` 視為 `-`（OCR 錯誤）。例：`P-100` / `P 100` / `P100` / `P.100` → 同一鍵；`(R-404A)` / `R404A` → 同一鍵
+- **標準形挑選**：每個 key 群組以「出現次數最多」為標準形，同頻取字串較長者
+- **產出報告**：`process_lube_chart.py` 寫出 `output/normalize_report.xlsx`（兩個 sheet：`maker_merged`、`model_merged`），列出所有合併群組供抽查
+
+### 5. 去除重複列
+
+唯一鍵：`Maker` + `Model / Type` + `Part to be lubricated` + `Lubricant` 四欄組合（已套用第 4 點正規化後的標準形），完全相同則去除重複，保留第一筆。
+
+### 6. 排除特定潤滑油
 
 `Lubricant` 欄位含 `TALUSIA LS 25` 的記錄一律刪除（不論來源）。
 

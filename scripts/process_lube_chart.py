@@ -26,7 +26,7 @@ LOG_FILE = os.path.join(LOG_DIR, 'update_log.txt')
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _filters import is_invalid_model
+from _filters import is_invalid_model, canonicalize_column, maker_key, model_key
 
 # ── Excel 色彩 ──────────────────────────────────────────────────
 HDR_BG   = '1F3864'
@@ -201,6 +201,42 @@ def write_excel(df, path):
 
     wb.save(path)
 
+# ── 正規化合併報告 ─────────────────────────────────────────────
+def _write_normalize_report(maker_groups, model_groups):
+    """產出 output/normalize_report.xlsx，列出 Maker / Model 被合併的群組。"""
+    out_path = os.path.join(OUT_DIR, 'normalize_report.xlsx')
+    os.makedirs(OUT_DIR, exist_ok=True)
+    wb = Workbook()
+
+    def fill_sheet(ws, title, groups):
+        ws.title = title
+        headers = ['key', 'canonical', 'variant_count', 'total_rows', 'variants']
+        ws.append(headers)
+        for g in groups:
+            ws.append([
+                g['key'],
+                g['canonical'],
+                len(g['variants']),
+                g['total_rows'],
+                ' | '.join(g['variants']),
+            ])
+        # 標題列樣式
+        hdr_font = Font(color='FFFFFF', bold=True)
+        hdr_fill = PatternFill('solid', fgColor=HDR_BG)
+        for c in ws[1]:
+            c.font = hdr_font
+            c.fill = hdr_fill
+        ws.freeze_panes = 'A2'
+        widths = [16, 28, 14, 12, 80]
+        for i, w in enumerate(widths, 1):
+            ws.column_dimensions[get_column_letter(i)].width = w
+
+    fill_sheet(wb.active, 'maker_merged', maker_groups)
+    fill_sheet(wb.create_sheet(), 'model_merged', model_groups)
+    wb.save(out_path)
+    print(f"  正規化報告：{out_path}（Maker {len(maker_groups)} 群組、Model {len(model_groups)} 群組）")
+
+
 # ── Log 工具 ────────────────────────────────────────────────────
 def append_log(summary):
     os.makedirs(LOG_DIR, exist_ok=True)
@@ -348,6 +384,20 @@ def main():
     before = len(df_master)
     df_master = df_master[~df_master['Lubricant'].str.contains('TALUSIA LS 25', na=False)]
     print(f"  排除 TALUSIA LS 25：{before - len(df_master)} 列移除")
+
+    # Maker / Model 正規化（方案 A：規則式比對鍵 + 最高頻原文為標準形）
+    new_makers, maker_groups = canonicalize_column(df_master['Maker'], maker_key)
+    new_models, model_groups = canonicalize_column(df_master['Model / Type'], model_key)
+    df_master['Maker'] = new_makers
+    df_master['Model / Type'] = new_models
+    print(f"  Maker 正規化：合併 {len(maker_groups)} 群組")
+    print(f"  Model 正規化：合併 {len(model_groups)} 群組")
+
+    # 寫出正規化合併報告
+    try:
+        _write_normalize_report(maker_groups, model_groups)
+    except Exception as e:
+        print(f"  ⚠️  正規化報告寫入失敗（不影響主流程）：{e}")
 
     # 去重
     before = len(df_master)

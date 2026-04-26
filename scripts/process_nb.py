@@ -30,7 +30,7 @@ LOG_FILE   = os.path.join(LOG_DIR, 'update_log.txt')
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _filters import is_invalid_model
+from _filters import is_invalid_model, canonicalize_column, maker_key, model_key
 
 # Excel 色彩
 HDR_BG  = '1F3864'
@@ -2045,6 +2045,13 @@ def main():
     before = len(df_master)
     df_master = df_master[~df_master['Lubricant'].str.contains('TALUSIA LS 25', na=False)]
     print(f"  排除 TALUSIA LS 25：{before - len(df_master)} 列移除")
+
+    # Maker / Model 正規化
+    new_makers, mk_groups = canonicalize_column(df_master['Maker'], maker_key)
+    new_models, md_groups = canonicalize_column(df_master['Model / Type'], model_key)
+    df_master['Maker'] = new_makers
+    df_master['Model / Type'] = new_models
+    print(f"  Maker 正規化：合併 {len(mk_groups)} 群組；Model 正規化：合併 {len(md_groups)} 群組")
 
     # 去重
     before = len(df_master)
