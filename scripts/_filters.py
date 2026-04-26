@@ -163,6 +163,50 @@ def apply_compressor_part_rule(equipment, part):
     return part
 
 
+# === Part 括號清理（保留燃油規範與 EAL，移除註記/油路說明等雜訊） ===
+# 保留 keyword：燃油等級 + ECA + EAL + 任意 %S 標示
+_PART_PAREN_KEEP_KEYWORDS = re.compile(
+    r'\b(?:HSFO|VLSFO|ULSFO|LSFO|HSHFO|HFO|IFO|MGO|MDO|LNG|ECA|EAL)\b'
+    r'|%\s*S\b',
+    re.IGNORECASE,
+)
+# 括號內的註記雜訊（含分隔符前綴），如 ` - REMARK 1`、`, NOTE 2`
+_PART_PAREN_NOISE = re.compile(
+    r'\s*[-,]\s*(?:REMARK|NOTE)\s*\d*\s*',
+    re.IGNORECASE,
+)
+_PART_PAREN = re.compile(r'\s*\(([^()]*)\)')
+_PART_SQUARE_BRACKET = re.compile(r'\s*\[[^\[\]]*\]')
+_PART_TRAILING_ALTERNATE = re.compile(r'\s*[-,]\s*ALTERNATE\s*$', re.IGNORECASE)
+
+
+def strip_non_fuel_parens(part):
+    """Part to be lubricated 括號清理：
+    - 括號內含燃油規範 keyword（HSFO/VLSFO/ULSFO/LSFO/HSHFO/HFO/IFO/MGO/MDO/LNG/ECA、%S）
+      或 EAL → 保留括號；同時移除括號內的 REMARK/NOTE 註記片段
+    - 括號內無 keyword → 整段括號連前置空白移除
+    - 方括號 [...] 一律移除
+    - 後綴 - ALTERNATE / , ALTERNATE 一律移除
+    僅套用於 Lube Chart 與 NB；OEM 不呼叫此函式（Part 不正規化原則）。"""
+    if not isinstance(part, str):
+        return part
+    s = part
+    s = _PART_SQUARE_BRACKET.sub('', s)
+
+    def _paren_repl(m):
+        inner = m.group(1)
+        if _PART_PAREN_KEEP_KEYWORDS.search(inner):
+            cleaned = _PART_PAREN_NOISE.sub('', inner).strip()
+            cleaned = re.sub(r'\s+', ' ', cleaned)
+            return f' ({cleaned})' if cleaned else ''
+        return ''
+
+    s = _PART_PAREN.sub(_paren_repl, s)
+    s = _PART_TRAILING_ALTERNATE.sub('', s)
+    s = re.sub(r'\s+', ' ', s).strip()
+    return s
+
+
 def apply_part_semantic_merge(s):
     """將通用同義詞合併為標準術語：
     - HYDRAULIC / HYD.MEDIUM / 縮寫 / 錯字 → HYDRAULIC SYSTEM

@@ -877,3 +877,52 @@ Vercel 部署：已透過 webhook 自動觸發
 正規化報告：output/normalize_report.xlsx（Maker 18 群組、Model 254 群組、Part 18 群組）
 輸出：output/lube_chart_master.xlsx（共 33,453 列）
 ========================================
+========================================
+時間：2026-04-26 15:11:29
+動作：部署（GitHub + Vercel）
+----------------------------------------
+Git commit：07a7f8f
+推送至 GitHub：✓
+Vercel 部署：已透過 webhook 自動觸發
+========================================
+========================================
+時間：2026-04-26 15:34:30
+動作：更新Lube Chart
+----------------------------------------
+新增處理：lubechart-20200101-20200331.csv ✓, lubechart-20200401-20200531.csv ✓, lubechart-20200601-20200930.csv ✓, lubechart-20201001-20201031.csv ✓, lubechart-20201101-20201108.csv ✓, lubechart-20201109-20201109.csv ✓, lubechart-20201110-20201110.csv ✓, lubechart-20201111-20201116.csv ✓, lubechart-20201117-20201130.csv ✓, lubechart-20201201-20201231.csv ✓, lubechart-20210101-20210228.csv ✓, lubechart-20210301-20210531.csv ✓, lubechart-20210601-20210831.csv ✓, lubechart-20210901-20211231.csv ✓, lubechart-20220101-20220630.csv ✓, lubechart-20220701-202201231.csv ✓, lubechart-20230101-20230630.csv ✓, lubechart-20230701-20231231.csv ✓, lubechart-2024.csv ✓, lubechart-20250101-20250630.csv ✓, lubechart-20250701-202501231.csv ✓, lubechart-20260101-20260419.csv ✓
+
+輸出：output/lube_chart_master.xlsx（共 33329 列）
+========================================
+========================================
+時間：2026-04-26 15:35:35
+動作：更新NB
+----------------------------------------
+新增處理：010-2 7U-2000-501_LUB OIL CHART_0001.pdf ✓, 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf ✓, 2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf ✓, 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf ✓, 3414_7U-2000-501_Lub Oil Chart(TOTAL)_R100_0001.pdf ✓, 3441's 7U-2000-501 LO Chart (TOTAL)_R101.pdf ✓, 3493~3495 Lub. Oil Chart_Total_R100★.pdf ✓, 8417_L.O CHART_R2.pdf ✓, CX5410.pdf ✓, CX9613 - CX9616.pdf ✓, G6029000-A-LUB.OIL CHART-S1950_240813.pdf ✓, H1610.pdf ✓（無 high/medium 記錄）, H1839A.pdf ✓, H2724.pdf ✓, H2771-H2776.pdf ✓, HN5801-7U2880201-LUB OIL CHART (TOTAL)_Rev.0.pdf ✓, JLZ8230417.pdf ✓, JNS230.pdf ✓, M-53_5100201N LUBRICATION OIL CHART-(Rev-A)-H1872A 20220727.pdf ✓, NDY1305_.pdf ✓, NTS0330001.pdf ✓, SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf ✓, SN2662 MF00201 LO ChartRev.C.pdf ✓, SN2672 76 79 81 83 85 L.O chart(TOTAL)_HSHFO_rev.D_2025-09-19.pdf ✓
+
+輸出：output/nb_master.xlsx（共 1088 列）
+========================================
+
+========================================
+時間：2026-04-26 15:36:16
+動作：重建Lube Chart + 重建NB
+----------------------------------------
+重建內容：清除 lube_chart_registry.json / nb_registry.json，重新處理全部原始檔
+套用最新 Part 括號清理規則（strip_non_fuel_parens）：
+  保留條件 — ( ) 內含 HSFO/VLSFO/ULSFO/LSFO/HSHFO/HFO/IFO/MGO/MDO/LNG/ECA/EAL/%S
+  移除：方括號 [...]、後綴 - ALTERNATE、註記 REMARK n / NOTE n
+
+Lube Chart：
+  - 22 個 CSV 全部重新處理 ✓
+  - Part 括號清理：998 列改寫
+  - 排除 NOT LUBRICATED：417 列移除
+  - 排除 TALUSIA LS 25：150 列移除
+  - 去重：106,241 列移除
+  - 輸出：output/lube_chart_master.xlsx（共 33,329 列）
+
+NB：
+  - 24 個 PDF 全部重新處理 ✓
+  - 解析報告全部重新產生：output/parse_report/nb_*_report.xlsx
+  - 輸出：output/nb_master.xlsx（共 1,088 列）
+
+備註：OEM 未動到（manual_data 受保護，括號規則不套用於 OEM）
+========================================

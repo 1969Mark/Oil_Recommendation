@@ -26,7 +26,7 @@ LOG_FILE = os.path.join(LOG_DIR, 'update_log.txt')
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor, apply_part_semantic_merge, apply_compressor_part_rule
+from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor, apply_part_semantic_merge, apply_compressor_part_rule, strip_non_fuel_parens
 
 # ── Excel 色彩 ──────────────────────────────────────────────────
 HDR_BG   = '1F3864'
@@ -406,6 +406,11 @@ def main():
     before = len(df_master)
     df_master = df_master[df_master['Lubricant'].fillna('').astype(str).str.strip().str.upper() != 'NOT LUBRICATED']
     print(f"  排除 NOT LUBRICATED：{before - len(df_master)} 列移除")
+
+    # Part 括號清理（保留燃油規範/EAL；移除註記、油路說明、方括號、ALTERNATE 後綴等）
+    before_paren = df_master['Part to be lubricated'].copy()
+    df_master['Part to be lubricated'] = df_master['Part to be lubricated'].map(strip_non_fuel_parens)
+    print(f"  Part 括號清理：{(before_paren != df_master['Part to be lubricated']).sum()} 列改寫")
 
     # Equipment 含 COMPRESSOR → Part 統一為 CYLINDERS & BEARINGS
     before_cmp = df_master['Part to be lubricated'].copy()

@@ -405,6 +405,13 @@ for file in files_to_process:
 - **空格差異統一**：`GEAR BOX` → `GEARBOX`、`CRANK CASE` → `CRANKCASE`、`STERN TUBE` → `STERNTUBE`
 - **連接詞統一**：`&` vs `AND` → 取頻率較高的形式
 - **保留技術後綴**：`EAL`、`VLSFO`、`RUNNING IN` 等技術標記不移除
+- **括號清理**（`strip_non_fuel_parens()`，僅 Lube Chart / NB；OEM 不適用）：
+  - **保留 `( )` 的條件**：括號內含燃油規範 keyword（`HSFO` / `VLSFO` / `ULSFO` / `LSFO` / `HSHFO` / `HFO` / `IFO` / `MGO` / `MDO` / `LNG` / `ECA`）、任意 `%S` 標示、或 `EAL` 環保潤滑油標記。例如 `CYLINDERS (VLSFO)`、`BEARINGS (0.5%S)`、`WIRE ROPES (EAL)`、`CYLINDERS (<0.1%S - ECA ZONE)` 均整段保留。
+  - **保留時的內部清理**：括號內若含 `REMARK n` / `NOTE n` 註記，連同分隔符一併剝除。例：`SYSTEM (VLSFO - REMARK 1)` → `SYSTEM (VLSFO)`、`CYLINDERS (ULSFO - REMARK 1)` → `CYLINDERS (ULSFO)`。
+  - **整段移除 `( )`**：括號內無上述 keyword 時，連同前置空白移除。例：`BEARINGS (BRANCH FROM SYSTEM OIL)` → `BEARINGS`、`CYLINDERS (LFL)` → `CYLINDERS`、`CYLINDERS & CRANKCASE (SMART)` → `CYLINDERS & CRANKCASE`、`HYDRAULIC POWER UNIT (HPU)` → `HYDRAULIC POWER UNIT`、`GEARBOX (NOTE 2)` → `GEARBOX`。
+  - **方括號 `[ ]` 一律移除**。例：`CYLINDER - VLSFO (0.10%~<0.50% S) [GP.II BASE OIL]` → `CYLINDER - VLSFO (0.10%~<0.50% S)`。
+  - **後綴 `- ALTERNATE` 移除**。例：`CYLINDERS (VLSFO) - ALTERNATE` → `CYLINDERS (VLSFO)`。
+  - **執行時機**：在 Lubricant 過濾後、COMPRESSOR Part 統一規則之前，避免影響後續 Part 語意合併與 canonicalize。
 
 ### 3. 過濾無效型號
 
