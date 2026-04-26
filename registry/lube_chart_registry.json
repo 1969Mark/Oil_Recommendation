@@ -1,134 +1,134 @@
 {
-  "last_updated": "2026-04-26T12:43:32",
+  "last_updated": "2026-04-26T13:14:40",
   "processed_files": {
     "lubechart-20200101-20200331.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 8589638,
       "file_mtime": "2026-04-20T08:01:06",
       "sha256": "9ca0a5f35562430328a2dd7dd2a155838c37c1cef77be20f4693be73a39bfc12"
     },
     "lubechart-20200401-20200531.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 12883235,
       "file_mtime": "2026-04-20T08:03:04",
       "sha256": "b98ce025628b21caacf2192d3370c0874474687cf5c280960dafa558206071c9"
     },
     "lubechart-20200601-20200930.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 11836048,
       "file_mtime": "2026-04-20T08:05:02",
       "sha256": "334b6749d7936b000a70a9de0a9960b4929e2bae6f94441a3828fc829f1cf562"
     },
     "lubechart-20201001-20201031.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 4650597,
       "file_mtime": "2026-04-20T08:05:02",
       "sha256": "2d4055725ede05e9d1c9509cfcccb06d105fd24bc979550f31048e044da33d3c"
     },
     "lubechart-20201101-20201108.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 407014,
       "file_mtime": "2026-04-20T08:09:56",
       "sha256": "cc0c833981cf69aa670a253d12a3b7a83fa6810a3faa311259f27ae0776e9b51"
     },
     "lubechart-20201109-20201109.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 13385276,
       "file_mtime": "2026-04-20T08:12:02",
       "sha256": "35a89dc7ea2dfd704442075bf9770207c0e89f508da873cfc7cf85556e331aa7"
     },
     "lubechart-20201110-20201110.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 11409676,
       "file_mtime": "2026-04-20T08:13:38",
       "sha256": "b2c97249557bbfae1c69f6de19403197c36c3734f55665e68dbd0ac2480f90ea"
     },
     "lubechart-20201111-20201116.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 4228567,
       "file_mtime": "2026-04-20T08:15:36",
       "sha256": "caf13471a1f4c41204133bdd07d1d25f1e0d7f48b9da6ae16e98d1a656a20a37"
     },
     "lubechart-20201117-20201130.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 12107999,
       "file_mtime": "2026-04-20T08:17:06",
       "sha256": "87f41f069804c4692829067a6d8c2b53bb7352dea5d392a03d4e454c139c0a8b"
     },
     "lubechart-20201201-20201231.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 10006732,
       "file_mtime": "2026-04-20T08:18:34",
       "sha256": "580dbc71cb7f7cc346f94df4c4322ef7958cb4a31f62096845bfae480412cb7c"
     },
     "lubechart-20210101-20210228.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 11775744,
       "file_mtime": "2026-04-20T07:51:18",
       "sha256": "66b36c2c1e7f23073c0f1714b1db9ffe718cd66ae8059e03709a857542ea8414"
     },
     "lubechart-20210301-20210531.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 13106931,
       "file_mtime": "2026-04-20T07:51:18",
       "sha256": "649686327da4e55142b172b507787639b9ee897821d8b4467c1d22ab661a5b9e"
     },
     "lubechart-20210601-20210831.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 12079785,
       "file_mtime": "2026-04-20T07:55:24",
       "sha256": "3a92e3223db72abb7e6cefe239b9b0376a8f142cb59be4daa7f8857e9faedbb5"
     },
     "lubechart-20210901-20211231.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 4162092,
       "file_mtime": "2026-04-20T07:57:38",
       "sha256": "416ee7d794bba36dfd6b72b952ba7b7ced01669d7b2277d50970a98b3093f3d6"
     },
     "lubechart-20220101-20220630.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 9631328,
       "file_mtime": "2026-04-19T11:14:08",
       "sha256": "dfbb6082244cac1dc5bf4abc131df2c0fec2ff51de3cb1587ac39770391d3522"
     },
     "lubechart-20220701-202201231.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 9270289,
       "file_mtime": "2026-04-19T11:15:36",
       "sha256": "6c28e8eee6380cbea6dce17f5a9e39317309a2514f56e99e7a261693417c68bc"
     },
     "lubechart-20230101-20230630.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 10835928,
       "file_mtime": "2026-04-19T11:10:36",
       "sha256": "49b72b9b338c40d4f0e1aa7a718d1c35da3254c74ff46308c3686471a231b3da"
     },
     "lubechart-20230701-20231231.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 9789613,
       "file_mtime": "2026-04-19T11:12:18",
       "sha256": "337271cf072df858c1677e8421aa433d52986fc7785501f2f892282a3e889b92"
     },
     "lubechart-2024.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 15017168,
       "file_mtime": "2026-04-19T11:07:22",
       "sha256": "681a8a7048a01cea0836c2c6a495cdb6f1563aa3db17b61f43aa6d608c37616a"
     },
     "lubechart-20250101-20250630.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 5729949,
       "file_mtime": "2026-04-19T10:59:50",
       "sha256": "cdad02a41d44ac39b7077b423c27c41a4d2068ca98ef595ac8423f49eba96c40"
     },
     "lubechart-20250701-202501231.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 8811603,
       "file_mtime": "2026-04-19T11:03:18",
       "sha256": "1aff48bcf0323619a17ee7f28956359292863e19051d33e97103b5176c35e670"
     },
     "lubechart-20260101-20260419.csv": {
-      "processed_at": "2026-04-26T12:42:35",
+      "processed_at": "2026-04-26T13:13:46",
       "file_size_bytes": 3791422,
       "file_mtime": "2026-04-19T10:54:30",
       "sha256": "ed3dc28657931bbd8671edc2da1dad3d1c1d65bc106bbdcd8cd81d1f5d501338"

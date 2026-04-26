@@ -444,6 +444,10 @@ for file in files_to_process:
 
 `Lubricant` 欄位含 `TALUSIA LS 25` 的記錄一律刪除（不論來源）。
 
+### 7. 排除空白 Lubricant
+
+`Lubricant` 欄位為空白或僅含空格的記錄一律刪除（不論來源）。OEM 的 `manual_data` 不受此規則影響（人工維護內容由使用者負責）。
+
 ---
 
 ## 🎨 Excel 輸出格式規範

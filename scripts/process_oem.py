@@ -622,6 +622,10 @@ def main():
         print(f"  過濾無效型號：{before - len(df_source)} 列移除")
 
         before = len(df_source)
+        df_source = df_source[df_source['Lubricant'].fillna('').astype(str).str.strip() != '']
+        print(f"  過濾空白 Lubricant：{before - len(df_source)} 列移除")
+
+        before = len(df_source)
         df_source = df_source[~df_source['Lubricant'].str.contains('TALUSIA LS 25', na=False)]
         print(f"  排除 TALUSIA LS 25：{before - len(df_source)} 列移除")
 

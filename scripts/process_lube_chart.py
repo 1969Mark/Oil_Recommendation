@@ -392,6 +392,11 @@ def main():
     df_master = df_master[~df_master['Model / Type'].apply(is_invalid_model)]
     print(f"  過濾無效型號：{before - len(df_master)} 列移除")
 
+    # 過濾空白 Lubricant
+    before = len(df_master)
+    df_master = df_master[df_master['Lubricant'].fillna('').astype(str).str.strip() != '']
+    print(f"  過濾空白 Lubricant：{before - len(df_master)} 列移除")
+
     # 排除 TALUSIA LS 25
     before = len(df_master)
     df_master = df_master[~df_master['Lubricant'].str.contains('TALUSIA LS 25', na=False)]
