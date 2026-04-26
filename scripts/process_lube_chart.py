@@ -26,7 +26,7 @@ LOG_FILE = os.path.join(LOG_DIR, 'update_log.txt')
 COLS = ['Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 DEDUP_KEYS = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor, apply_part_semantic_merge
+from _filters import is_invalid_model, canonicalize_column, maker_key, model_key, strip_quantity_descriptor, apply_part_semantic_merge, apply_compressor_part_rule
 
 # ── Excel 色彩 ──────────────────────────────────────────────────
 HDR_BG   = '1F3864'
@@ -396,6 +396,12 @@ def main():
     before = len(df_master)
     df_master = df_master[~df_master['Lubricant'].str.contains('TALUSIA LS 25', na=False)]
     print(f"  排除 TALUSIA LS 25：{before - len(df_master)} 列移除")
+
+    # Equipment 含 COMPRESSOR → Part 統一為 CYLINDERS & BEARINGS
+    before_cmp = df_master['Part to be lubricated'].copy()
+    df_master['Part to be lubricated'] = df_master.apply(
+        lambda r: apply_compressor_part_rule(r['Equipment'], r['Part to be lubricated']), axis=1)
+    print(f"  COMPRESSOR Part 統一：{(before_cmp != df_master['Part to be lubricated']).sum()} 列改寫為 CYLINDERS & BEARINGS")
 
     # Part 語意合併（HYDRAULIC 同義詞 → HYDRAULIC SYSTEM；通用齒輪 → ENCLOSED GEAR）
     before_part = df_master['Part to be lubricated'].copy()

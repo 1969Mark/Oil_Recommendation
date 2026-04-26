@@ -146,6 +146,23 @@ _GEAR_TO_ENCLOSED_GEAR = {
 }
 
 
+_COMPRESSOR_PART_KEEP = {
+    'MOTOR BEARINGS',  # 附屬電機軸承，潤滑與壓縮機本體不同
+    'FAN BEARING',     # 風扇軸承，獨立潤滑點
+}
+
+
+def apply_compressor_part_rule(equipment, part):
+    """若 Equipment 含 'COMPRESSOR' 關鍵字，將 Part to be lubricated 統一改為
+    'CYLINDERS & BEARINGS'。例外保留：MOTOR BEARINGS / FAN BEARING（壓縮機附屬電機與風扇軸承）。
+    僅套用於 Lube Chart 與 NB；OEM 不呼叫此函式。"""
+    if isinstance(equipment, str) and 'COMPRESSOR' in equipment.upper():
+        if isinstance(part, str) and part.strip().upper() in _COMPRESSOR_PART_KEEP:
+            return part
+        return 'CYLINDERS & BEARINGS'
+    return part
+
+
 def apply_part_semantic_merge(s):
     """將通用同義詞合併為標準術語：
     - HYDRAULIC / HYD.MEDIUM / 縮寫 / 錯字 → HYDRAULIC SYSTEM

@@ -432,6 +432,7 @@ for file in files_to_process:
   - **HYDRAULIC 同義詞 → `HYDRAULIC SYSTEM`**：合併 `HYDRAULIC` / `HYDRAULIC MEDIUM` / `HYDRAULIC OIL` / `HYDRAULIC FLUID` / `HYD.SYSTEM` / `HYD.MEDIUM` / `HYDR. SYSTEM` 等同義詞與縮寫/錯字；亦含 `HYDRAULIC SYSTEM (EAL)` / `HYDRAULIC (EAL)`。**保留**：`HYDRAULIC STARTER`、`HYDRAULIC BRAKE`、`HYDRAULIC PUMP`、`HYDRAULIC POWER UNIT (HPU)` 等獨立設備；`HYDRAULIC SYSTEM (0.5%S)` / `(VLSFO)` / `(HSHFO)` 等其他燃料等級標記者；`STEERING HYDRAULIC SYSTEM` 等用途特定者
   - **通用齒輪 → `ENCLOSED GEAR`**：合併 `GEAR` / `GEARS` / `GEAR BOX` / `GEARBOX` / `GEAR UNIT` / `GEAR OIL` / `ENCLOSED GEAR(S)` 變體與錯字；亦含 `STEERING GEAR` / `TURNING GEAR` / `REDUCTION GEAR`。**保留**：`OPEN GEAR` 系列（與封閉齒輪潤滑要求不同）；`WORM GEAR` / `TIMING GEAR` / `HEAD GEAR` 等其他特定機構；`HOISTING GEARBOX` / `SLEWING GEARBOX` / `WINCH GEARBOX` / `BURNER GEARBOX` 等用途特定齒輪箱；含其他組合或限定詞者（如 `SLEWING REDUCTION GEAR`、`BRAKE SYSTEM REDUCTION GEAR`、`TURNING GEAR (CHAIN)`）
   - 合併清單為明確 allowlist，定義於 `scripts/_filters.py`，新增同義詞需手動補入清單
+- **COMPRESSOR Part 統一**（`apply_compressor_part_rule()`，僅 Lube Chart / NB）：當 `Equipment` 含 `COMPRESSOR` 關鍵字時，`Part to be lubricated` 一律覆寫為 `CYLINDERS & BEARINGS`（含 `CRANKCASE`、`OIL POINTS`、`SCREW & GEAR` 等）。**例外保留**：`MOTOR BEARINGS`（附屬電機軸承）與 `FAN BEARING`（風扇軸承），因兩者屬獨立潤滑點，與壓縮機本體不同。OEM 不套用此規則。
 - **標準形挑選**：每個 key 群組以「出現次數最多」為標準形，同頻取字串較長者
 - **產出報告**：`process_lube_chart.py` 寫出 `output/normalize_report.xlsx`（三個 sheet：`maker_merged`、`model_merged`、`part_merged`），列出所有合併群組供抽查
 
