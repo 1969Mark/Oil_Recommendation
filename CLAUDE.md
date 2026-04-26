@@ -442,7 +442,8 @@ for file in files_to_process:
 
 ### 6. 排除特定潤滑油
 
-`Lubricant` 欄位含 `TALUSIA LS 25` 的記錄一律刪除（不論來源）。
+- `Lubricant` 欄位含 `TALUSIA LS 25` 的記錄一律刪除（不論來源）。
+- `Lubricant` 欄位為 `NOT LUBRICATED`（去頭尾空白後大小寫不敏感比對）的記錄一律刪除（不論來源）。
 
 ### 7. 排除空白 Lubricant
 

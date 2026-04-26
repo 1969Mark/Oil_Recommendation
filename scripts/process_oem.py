@@ -629,6 +629,10 @@ def main():
         df_source = df_source[~df_source['Lubricant'].str.contains('TALUSIA LS 25', na=False)]
         print(f"  排除 TALUSIA LS 25：{before - len(df_source)} 列移除")
 
+        before = len(df_source)
+        df_source = df_source[df_source['Lubricant'].fillna('').astype(str).str.strip().str.upper() != 'NOT LUBRICATED']
+        print(f"  排除 NOT LUBRICATED：{before - len(df_source)} 列移除")
+
         # Maker / Model 正規化（Part 欄位 OEM 不正規化，依 CLAUDE.md 規則 4）
         new_makers, mk_groups = canonicalize_column(df_source['Maker'], maker_key)
         new_models, md_groups = canonicalize_column(df_source['Model / Type'], model_key)

@@ -841,3 +841,39 @@ Vercel 部署：已透過 webhook 自動觸發
 
 輸出：output/nb_master.xlsx（共 1100 列）
 ========================================
+========================================
+時間：2026-04-26 13:16:23
+動作：部署（GitHub + Vercel）
+----------------------------------------
+Git commit：861bbf5
+推送至 GitHub：✓
+Vercel 部署：已透過 webhook 自動觸發
+========================================
+========================================
+時間：2026-04-26 15:09:13
+動作：更新Lube Chart
+----------------------------------------
+新增處理：lubechart-20200101-20200331.csv ✓, lubechart-20200401-20200531.csv ✓, lubechart-20200601-20200930.csv ✓, lubechart-20201001-20201031.csv ✓, lubechart-20201101-20201108.csv ✓, lubechart-20201109-20201109.csv ✓, lubechart-20201110-20201110.csv ✓, lubechart-20201111-20201116.csv ✓, lubechart-20201117-20201130.csv ✓, lubechart-20201201-20201231.csv ✓, lubechart-20210101-20210228.csv ✓, lubechart-20210301-20210531.csv ✓, lubechart-20210601-20210831.csv ✓, lubechart-20210901-20211231.csv ✓, lubechart-20220101-20220630.csv ✓, lubechart-20220701-202201231.csv ✓, lubechart-20230101-20230630.csv ✓, lubechart-20230701-20231231.csv ✓, lubechart-2024.csv ✓, lubechart-20250101-20250630.csv ✓, lubechart-20250701-202501231.csv ✓, lubechart-20260101-20260419.csv ✓
+
+輸出：output/lube_chart_master.xlsx（共 33453 列）
+========================================
+
+========================================
+時間：2026-04-26 15:10:06
+動作：重建Lube Chart
+----------------------------------------
+重建：清除 lube_chart_registry.json，重新處理 22 個 CSV 檔案
+套用最新過濾規則（含新增 NOT LUBRICATED 排除）
+
+過濾統計：
+  - 過濾無效型號：571,533 列移除
+  - 過濾空白 Lubricant：102 列移除
+  - 排除 TALUSIA LS 25：150 列移除
+  - 排除 NOT LUBRICATED：594 列移除（新規則生效）
+  - COMPRESSOR Part 統一：10,066 列改寫為 CYLINDERS & BEARINGS
+  - Part 語意合併（HYDRAULIC/GEAR）：19,140 列改寫
+  - 去重：106,117 列移除
+
+正規化報告：output/normalize_report.xlsx（Maker 18 群組、Model 254 群組、Part 18 群組）
+輸出：output/lube_chart_master.xlsx（共 33,453 列）
+========================================

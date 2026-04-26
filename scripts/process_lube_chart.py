@@ -402,6 +402,11 @@ def main():
     df_master = df_master[~df_master['Lubricant'].str.contains('TALUSIA LS 25', na=False)]
     print(f"  排除 TALUSIA LS 25：{before - len(df_master)} 列移除")
 
+    # 排除 NOT LUBRICATED
+    before = len(df_master)
+    df_master = df_master[df_master['Lubricant'].fillna('').astype(str).str.strip().str.upper() != 'NOT LUBRICATED']
+    print(f"  排除 NOT LUBRICATED：{before - len(df_master)} 列移除")
+
     # Equipment 含 COMPRESSOR → Part 統一為 CYLINDERS & BEARINGS
     before_cmp = df_master['Part to be lubricated'].copy()
     df_master['Part to be lubricated'] = df_master.apply(
