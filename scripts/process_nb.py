@@ -28,6 +28,7 @@ from _filters import (
     apply_part_semantic_merge, apply_compressor_part_rule, strip_non_fuel_parens,
 )
 from _nb_parsers import parse_pdf, assign_confidence, get_ship_id
+from _dict_validator import build_known_sets, annotate_records, summarize_hits
 
 # ── Excel 輸出 ───────────────────────────────────────────────────
 def write_master_excel(df, path):
@@ -43,11 +44,12 @@ def write_parse_report(records_with_conf, fname):
     rpt_path = os.path.join(RPT_DIR, f'nb_{os.path.splitext(fname)[0]}_report.xlsx')
     wb = Workbook()
 
-    # Sheet 1: all_data
+    # Sheet 1: all_data（含字典命中標記欄）
     ws1 = wb.active
     ws1.title = 'all_data'
     report_cols = ['row_id', 'page_no', 'confidence', 'confidence_reason',
-                   'Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
+                   'Equipment', 'Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant',
+                   '_hit_Equipment', '_hit_Maker', '_hit_Part to be lubricated', '_hit_Lubricant']
     for ci, col in enumerate(report_cols, 1):
         c = ws1.cell(row=1, column=ci, value=col)
         c.font = Font(bold=True, color='FFFFFF')
@@ -56,7 +58,9 @@ def write_parse_report(records_with_conf, fname):
     for ri, r in enumerate(records_with_conf, start=1):
         vals = [ri, r.get('_page', ''), r.get('confidence', ''), r.get('confidence_reason', ''),
                 r.get('設備名稱', ''), r.get('設備廠家', ''), r.get('設備型號', ''),
-                r.get('潤滑部位', ''), r.get('推薦潤滑油', '')]
+                r.get('潤滑部位', ''), r.get('推薦潤滑油', ''),
+                r.get('_hit_Equipment', ''), r.get('_hit_Maker', ''),
+                r.get('_hit_Part to be lubricated', ''), r.get('_hit_Lubricant', '')]
         for ci, v in enumerate(vals, 1):
             ws1.cell(row=ri + 1, column=ci, value=str(v) if v else '')
 
@@ -137,6 +141,13 @@ def main():
     stats = {'added': [], 'updated': [], 'failed': []}
     report_summary = []
 
+    # 預載字典（一次性，給所有待處理檔共用）
+    known_sets = build_known_sets()
+    print(f"  字典規模：Equipment={len(known_sets.get('Equipment', set()))} "
+          f"Maker={len(known_sets.get('Maker', set()))} "
+          f"Part={len(known_sets.get('Part to be lubricated', set()))} "
+          f"Lubricant={len(known_sets.get('Lubricant', set()))}")
+
     for fname, fpath, reason in to_process:
         try:
             print(f"\n  [{fname}]  [{reason}]")
@@ -149,6 +160,12 @@ def main():
 
             # 信心分數
             records_with_conf = assign_confidence(records, fmt, fpath)
+
+            # 字典命中標記（以現有 master 為字典反推欄位是否站對位置）
+            records_with_conf = annotate_records(records_with_conf, known_sets)
+            hit_sum = summarize_hits(records_with_conf)
+            hit_str = '  '.join(f'{k}:{h}/{t}' for k, (h, t) in hit_sum.items())
+            print(f'    字典命中  {hit_str}')
 
             # 產生 parse_report
             os.makedirs(RPT_DIR, exist_ok=True)

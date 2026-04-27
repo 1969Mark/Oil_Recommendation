@@ -400,8 +400,8 @@ Claude 彙整 → 向使用者確認 → 寫入 manual_data sheet
 
 查詢結果依以下優先順序排列（`lube_query_app.html` 的 `sortByCount()`）：
 
-1. `Count` **降序**（高頻次優先；OEM 等無 Count 欄位的記錄以 1 計算）
-2. `Source`：`OEM` > `NB` > `LUBE CHART`
+1. `Source`：`OEM` > `LUBE CHART` > `NB`
+2. `Count` **降序**（高頻次優先；OEM 等無 Count 欄位的記錄以 1 計算）
 3. `Maker` 字母順序
 4. `Model / Type` 字母順序
 

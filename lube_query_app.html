@@ -153,16 +153,16 @@ MAKERS.forEach(m => {
 
 let currentRows = DATA;
 
-// 排序優先順序：Count 降序 → Source（OEM > NB > LUBE CHART）→ Maker → Model/Type
-const SOURCE_ORDER = { 'OEM': 0, 'NB': 1, 'LUBE CHART': 2 };
+// 排序優先順序：Source（OEM > LUBE CHART > NB）→ Count 降序 → Maker → Model/Type
+const SOURCE_ORDER = { 'OEM': 0, 'LUBE CHART': 1, 'NB': 2 };
 function sortByCount(rows) {
   return [...rows].sort((a, b) => {
-    const ca = (a['Count'] != null ? Number(a['Count']) : 1) || 1;
-    const cb = (b['Count'] != null ? Number(b['Count']) : 1) || 1;
-    if (cb !== ca) return cb - ca;
     const sa = SOURCE_ORDER[a['Source']] ?? 99;
     const sb = SOURCE_ORDER[b['Source']] ?? 99;
     if (sa !== sb) return sa - sb;
+    const ca = (a['Count'] != null ? Number(a['Count']) : 1) || 1;
+    const cb = (b['Count'] != null ? Number(b['Count']) : 1) || 1;
+    if (cb !== ca) return cb - ca;
     const ma = (a['Maker'] || '').toString();
     const mb = (b['Maker'] || '').toString();
     if (ma !== mb) return ma.localeCompare(mb);
@@ -255,7 +255,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter') doSearch();
 });
 
-// Initial render — sorted by Count desc → Source (OEM > NB > LUBE CHART) → Maker → Model/Type
+// Initial render — sorted by Source (OEM > LUBE CHART > NB) → Count desc → Maker → Model/Type
 currentRows = sortByCount(DATA);
 renderTable(currentRows);
 </script>
