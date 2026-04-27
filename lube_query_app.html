@@ -3,261 +3,725 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lube Oil Query System</title>
+<title>Marine Lubrication Reference / Lube Oil Query</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,30..100,0..1;1,9..144,300..900,30..100,0..1&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --ink:        #0A1A2F;
+    --ink-soft:   #1B3149;
+    --ink-line:   rgba(10, 26, 47, .14);
+    --ink-rule:   rgba(10, 26, 47, .35);
+    --paper:      #EFE7D2;
+    --paper-warm: #E8DEC2;
+    --paper-cool: #F5EFDD;
+    --brass:      #B8853A;
+    --brass-dim:  #8E6526;
+    --signal:     #B23A2E;
+    --moss:       #4A6B3E;
+    --teal:       #1F4F4A;
+    --shadow:     0 1px 0 rgba(10,26,47,.08), 0 24px 48px -32px rgba(10,26,47,.35);
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, sans-serif; background: #f0f4f8; color: #222; }
 
-  header {
-    background: linear-gradient(135deg, #1B3A5C 0%, #2a5a8c 100%);
-    padding: 20px 32px;
-    display: flex; align-items: center; gap: 16px;
+  html, body { height: 100%; }
+  body {
+    font-family: 'Instrument Sans', system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    background-image:
+      /* horizontal ledger lines */
+      repeating-linear-gradient(to bottom, transparent 0 31px, var(--ink-line) 31px 32px),
+      /* subtle grain */
+      radial-gradient(circle at 20% 10%, rgba(184,133,58,.08), transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(31,79,74,.06), transparent 45%);
+    font-feature-settings: "ss01", "cv01";
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
-  header h1 { color: #fff; font-size: 20px; font-weight: 700; letter-spacing: .5px; }
-  header span { color: #CB9A2A; font-size: 13px; margin-top: 2px; display: block; }
-
-  .container { max-width: 1400px; margin: 0 auto; padding: 24px 20px; }
-
-  .search-card {
-    background: #fff; border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.08);
-    padding: 24px 28px; margin-bottom: 20px;
-  }
-  .search-card h2 { font-size: 14px; color: #1B3A5C; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .8px; margin-bottom: 16px; }
-  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media(max-width:700px) { .fields { grid-template-columns: 1fr; } }
-
-  .field label { display: block; font-size: 12px; font-weight: 600;
-    color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
-  .field input, .field select {
-    width: 100%; padding: 10px 14px; border: 1.5px solid #d0d9e4;
-    border-radius: 6px; font-size: 14px; color: #222;
-    transition: border-color .2s;
-  }
-  .field input:focus, .field select:focus {
-    outline: none; border-color: #1B3A5C;
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.04 0 0 0 0 0.10 0 0 0 0 0.18 0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.32'/></svg>");
+    mix-blend-mode: multiply; opacity: .35;
   }
 
-  .btn-row { margin-top: 18px; display: flex; gap: 10px; align-items: center; }
-  button {
-    padding: 9px 22px; border: none; border-radius: 6px;
-    font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s;
+  /* ---------- TOP BAR / MASTHEAD ---------- */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 16px 32px 14px;
+    border-bottom: 1px solid #000;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    overflow: hidden;
+    box-shadow: 0 6px 20px -10px rgba(0,0,0,.6);
   }
-  .btn-search { background: #1B3A5C; color: #fff; }
-  .btn-search:hover { background: #14304f; }
-  .btn-clear { background: #e8eef5; color: #1B3A5C; }
-  .btn-clear:hover { background: #d0dcea; }
-  .btn-export { background: #CB9A2A; color: #fff; margin-left: auto; }
-  .btn-export:hover { background: #b08520; }
+  .masthead::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+    background:
+      linear-gradient(to right,
+        var(--brass) 0 12%,
+        var(--ink-soft) 12% 100%);
+  }
+  .meta-strip {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+    color: rgba(239, 231, 210, .55);
+    padding-bottom: 8px; border-bottom: 1px dashed rgba(239,231,210,.18);
+  }
+  .meta-strip span { display: inline-flex; gap: 14px; }
+  .meta-strip em { font-style: normal; color: var(--brass); }
 
-  .results-card {
-    background: #fff; border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.08);
+  .masthead-main {
+    display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center;
+  }
+  .crest {
+    width: 44px; height: 44px;
+    border: 1.5px solid var(--brass);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    position: relative;
+    color: var(--brass);
+    font-family: 'Fraunces', serif;
+    font-weight: 600; font-size: 18px;
+    font-variation-settings: "SOFT" 100, "WONK" 1;
+  }
+  .crest::before, .crest::after {
+    content: ""; position: absolute; background: var(--brass);
+  }
+  .crest::before { left: -10px; right: -10px; top: 50%; height: 1px; }
+  .crest::after  { top: -10px; bottom: -10px; left: 50%; width: 1px; }
+  .crest span {
+    background: var(--ink); padding: 0 4px; position: relative; z-index: 2;
+  }
+
+  .titles h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 380;
+    font-variation-settings: "SOFT" 60, "WONK" 1, "opsz" 144;
+    font-size: clamp(22px, 2.8vw, 32px);
+    line-height: 1;
+    color: var(--paper);
+    letter-spacing: -0.01em;
+  }
+  .titles h1 em {
+    font-style: italic;
+    font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144;
+    color: var(--brass);
+  }
+  .titles .sub {
+    margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+    color: rgba(239, 231, 210, .65);
+  }
+  .titles .sub::before {
+    content: "§ "; color: var(--brass);
+  }
+
+  .coords {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: .1em;
+    color: rgba(239,231,210,.5);
+    line-height: 1.7;
+  }
+  .coords b { color: var(--paper); font-weight: 500; }
+
+  /* ---------- LAYOUT ---------- */
+  .container {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 36px 32px 80px;
+  }
+
+  /* ---------- SECTION HEADERS ---------- */
+  .section-label {
+    display: flex; align-items: baseline; gap: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: .25em; text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .section-label .num {
+    color: var(--brass); font-weight: 700;
+  }
+  .section-label::after {
+    content: ""; flex: 1; height: 1px; background: var(--ink-rule);
+    align-self: center;
+  }
+  .section-label .meta {
+    color: rgba(10,26,47,.5); font-size: 10px;
+    letter-spacing: .15em;
+  }
+
+  /* ---------- SEARCH PANEL ---------- */
+  .console {
+    background:
+      linear-gradient(var(--paper-cool), var(--paper-cool)),
+      var(--paper);
+    border: 1px solid var(--ink);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    margin-bottom: 40px;
+    position: relative;
     overflow: hidden;
   }
-  .results-header {
-    padding: 14px 20px; background: #f7f9fc;
-    border-bottom: 1px solid #e4eaf2;
-    display: flex; align-items: center; justify-content: space-between;
+  .console::before {
+    content: ""; position: absolute; inset: 5px; border: 1px solid var(--ink-line);
+    border-radius: 10px;
+    pointer-events: none;
   }
-  .results-header span { font-size: 13px; color: #555; }
-  .results-header strong { color: #1B3A5C; }
+  .console-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--ink-line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--ink-soft);
+    background:
+      repeating-linear-gradient(45deg,
+        transparent 0 6px,
+        rgba(10,26,47,.025) 6px 7px);
+  }
+  .console-head .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--ink); color: var(--paper);
+    padding: 4px 12px; letter-spacing: .2em;
+    font-size: 9.5px; border-radius: 0;
+  }
+  .console-head .pill::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--brass);
+    box-shadow: 0 0 0 3px rgba(184,133,58,.25);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; box-shadow: 0 0 0 3px rgba(184,133,58,.25); }
+    50%     { opacity: .6; box-shadow: 0 0 0 5px rgba(184,133,58,.05); }
+  }
 
-  .table-wrap { overflow-x: auto; max-height: 65vh; overflow-y: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .fields {
+    display: grid; grid-template-columns: 1fr 1px 1fr;
+    padding: 14px 24px 4px;
+  }
+  .fields .divider {
+    background: var(--ink-line);
+    margin: 4px 20px;
+  }
+  @media (max-width: 720px) {
+    .fields { grid-template-columns: 1fr; }
+    .fields .divider { display: none; }
+  }
+  .field { padding: 2px 0 10px; }
+  .field label {
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .field label .hint {
+    font-size: 9.5px; letter-spacing: .12em;
+    color: rgba(10,26,47,.45);
+  }
+  .field-input {
+    position: relative;
+  }
+  .field-input::before {
+    content: "›"; position: absolute; left: 0; top: 50%; transform: translateY(-52%);
+    font-family: 'Fraunces', serif; font-size: 24px; color: var(--brass);
+    font-weight: 600;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 6px 8px 6px 22px;
+    border: none;
+    border-bottom: 1.5px solid var(--ink);
+    background: transparent;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; color: var(--ink);
+    letter-spacing: .02em;
+    transition: border-color .25s, padding-bottom .25s;
+  }
+  .field input::placeholder {
+    color: rgba(10,26,47,.35); font-style: italic;
+    font-family: 'Fraunces', serif; font-size: 13.5px;
+    font-variation-settings: "SOFT" 100, "WONK" 1;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--brass);
+    padding-bottom: 8px;
+  }
+
+  .btn-row {
+    display: flex; align-items: center; gap: 0;
+    border-top: 1px solid var(--ink-line);
+    padding: 10px 24px;
+    background:
+      repeating-linear-gradient(-45deg,
+        transparent 0 8px,
+        rgba(10,26,47,.02) 8px 9px);
+  }
+  button {
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: .25em; text-transform: uppercase;
+    border: 1px solid var(--ink);
+    padding: 11px 22px;
+    background: var(--paper-cool);
+    color: var(--ink);
+    transition: all .2s ease;
+    position: relative;
+    margin-right: -1px;
+  }
+  button:hover {
+    background: var(--ink); color: var(--paper);
+    z-index: 2;
+  }
+  .btn-search {
+    background: var(--ink); color: var(--paper);
+    padding-right: 32px;
+  }
+  .btn-search::after {
+    content: "→"; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    font-family: 'Fraunces', serif; font-size: 16px;
+    color: var(--brass); transition: transform .25s;
+  }
+  .btn-search:hover::after { transform: translateY(-50%) translateX(4px); }
+  .btn-search:hover { background: var(--ink-soft); }
+  .btn-clear { background: transparent; }
+  .btn-export {
+    background: transparent; border-color: var(--brass-dim); color: var(--brass-dim);
+    margin-left: auto; margin-right: 0;
+  }
+  .btn-export:hover { background: var(--brass); color: var(--ink); border-color: var(--brass); }
+
+  .formula {
+    margin-left: 18px;
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-variation-settings: "SOFT" 100, "WONK" 1;
+    font-size: 12.5px; color: rgba(10,26,47,.55);
+    letter-spacing: .01em;
+  }
+  .formula code {
+    font-family: 'JetBrains Mono', monospace; font-style: normal;
+    font-size: 10.5px;
+    background: var(--paper-warm); padding: 2px 7px;
+    color: var(--ink); border: 1px solid var(--ink-line);
+  }
+  @media (max-width: 900px) {
+    .formula { display: none; }
+  }
+
+  /* ---------- RESULTS ---------- */
+  .results-meta {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 18px;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .results-meta .count {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "SOFT" 80, "WONK" 1, "opsz" 144;
+    font-weight: 350;
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .results-meta .count .unit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: .25em; text-transform: uppercase;
+    color: var(--brass-dim);
+    margin-left: 12px; vertical-align: middle;
+  }
+  .results-meta .hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: .15em; text-transform: uppercase;
+    color: rgba(10,26,47,.5);
+    text-align: right;
+  }
+  .results-meta .hint b { color: var(--ink); font-weight: 600; }
+
+  .ledger {
+    background: var(--paper-cool);
+    border: 1px solid var(--ink);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    position: relative;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    max-height: 68vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink-soft) transparent;
+  }
+  .table-wrap::-webkit-scrollbar { width: 10px; height: 10px; }
+  .table-wrap::-webkit-scrollbar-thumb { background: var(--ink-soft); }
+  .table-wrap::-webkit-scrollbar-track { background: var(--paper-warm); }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px;
+  }
   thead th {
-    background: #1B3A5C; color: #fff; font-weight: 600;
-    padding: 10px 14px; text-align: left; white-space: nowrap;
-    position: sticky; top: 0; z-index: 2;
+    position: sticky; top: 0; z-index: 3;
+    background: var(--ink); color: var(--paper);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 2px solid var(--brass);
+    white-space: nowrap;
   }
-  tbody tr:nth-child(even) { background: #EBF3FB; }
-  tbody tr:hover { background: #dceefa; }
-  tbody td { padding: 8px 14px; border-bottom: 1px solid #e8eef5; vertical-align: middle; }
+  thead th .col-num {
+    color: var(--brass); margin-right: 8px;
+    font-weight: 700;
+  }
+  tbody td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--ink-line);
+    vertical-align: middle;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+  }
+  tbody td.serif {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "SOFT" 60, "WONK" 1, "opsz" 144;
+    font-weight: 420;
+    font-size: 14.5px;
+    letter-spacing: -0.005em;
+  }
+  tbody tr {
+    transition: background .15s;
+    animation: rowIn .5s cubic-bezier(.2,.7,.3,1) both;
+  }
+  tbody tr:nth-child(even) { background: rgba(232, 222, 194, .35); }
+  tbody tr:hover {
+    background: var(--paper-warm);
+    box-shadow: inset 4px 0 0 var(--brass);
+  }
+  @keyframes rowIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .lubricant-cell {
+    font-family: 'Fraunces', serif !important;
+    font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144;
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+  }
+
+  .count-cell {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .count-cell.high {
+    color: var(--brass-dim);
+  }
+
   .tag {
-    display: inline-block; padding: 2px 10px; border-radius: 12px;
-    font-size: 11px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px 3px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase;
+    font-weight: 600;
+    border: 1px solid currentColor;
+    background: transparent;
+    white-space: nowrap;
   }
-  .tag-nb { background: #FFF0CC; color: #7B5E00; }
-  .tag-lc { background: #E8F5E9; color: #1A6B2F; }
-    .tag-oem { background: #E3F2FD; color: #1565C0; }
+  .tag::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: currentColor;
+  }
+  .tag-nb  { color: var(--brass-dim); }
+  .tag-lc  { color: var(--moss); }
+  .tag-oem { color: var(--signal); background: rgba(178,58,46,.06); }
+
   .no-result {
-    text-align: center; padding: 60px 20px; color: #999; font-size: 14px;
+    text-align: center; padding: 80px 20px;
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144;
+    font-style: italic;
+    font-size: 22px;
+    color: rgba(10,26,47,.4);
   }
+  .no-result::before {
+    content: "—"; display: block; color: var(--brass);
+    font-style: normal; margin-bottom: 8px; font-size: 24px;
+  }
+
+  .truncate-note {
+    text-align: center;
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--brass-dim);
+    background: var(--paper-warm);
+    border-top: 1px dashed var(--ink-rule);
+  }
+
+  /* ---------- COLOPHON / FOOTER ---------- */
+  .colophon {
+    margin-top: 50px;
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-top: 20px;
+    border-top: 1px solid var(--ink-rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
+    color: rgba(10,26,47,.5);
+    flex-wrap: wrap; gap: 12px;
+  }
+  .colophon .legend {
+    display: flex; gap: 18px; flex-wrap: wrap;
+  }
+  .colophon .legend .tag { font-size: 8.5px; }
+
+  /* selection */
+  ::selection { background: var(--brass); color: var(--ink); }
 </style>
 </head>
 <body>
 
-<header>
-  <div>
-    <h1>🔍 Lube Oil Query System</h1>
-    <span>Marine Lubrication Oil Recommendation Database</span>
+<header class="masthead">
+  <div class="masthead-main">
+    <div class="crest" aria-hidden="true"><span>L</span></div>
+    <div class="titles">
+      <h1>Lube Oil <em>Reference</em></h1>
+      <div class="sub">Marine Lubrication Recommendation Database</div>
+    </div>
   </div>
 </header>
 
-<div class="container">
-  <div class="search-card">
-    <h2>Search</h2>
+<main class="container">
+
+  <div class="section-label">
+    <span class="num">01</span>
+    <span>Search Console</span>
+    <span class="meta">— Maker · Model / Type</span>
+  </div>
+
+  <section class="console">
+    <div class="console-head">
+      <span>Index Inquiry</span>
+      <span class="pill">Live · Indexed</span>
+    </div>
     <div class="fields">
       <div class="field">
-        <label>Maker</label>
-        <input type="text" id="makerInput" placeholder="Enter maker name, e.g. WARTSILA, MAN..." list="makerList" autocomplete="off">
-        <datalist id="makerList"></datalist>
+        <label>
+          <span>Maker</span>
+          <span class="hint">autocomplete enabled</span>
+        </label>
+        <div class="field-input">
+          <input type="text" id="makerInput" placeholder="WÄRTSILÄ, MAN, YANMAR..." list="makerList" autocomplete="off">
+          <datalist id="makerList"></datalist>
+        </div>
       </div>
+      <div class="divider"></div>
       <div class="field">
-        <label>Model / Type</label>
-        <input type="text" id="modelInput" placeholder="Enter model / type, e.g. 6S50ME-C8.5...">
+        <label>
+          <span>Model / Type</span>
+          <span class="hint">partial match</span>
+        </label>
+        <div class="field-input">
+          <input type="text" id="modelInput" placeholder="6S50ME-C8.5, W32, 6DK-28...">
+        </div>
       </div>
     </div>
     <div class="btn-row">
       <button class="btn-search" onclick="doSearch()">Search</button>
       <button class="btn-clear" onclick="doClear()">Clear</button>
-      <span style="font-size:12px;color:#888;margin-left:12px;align-self:center;">Count data base on Maker+Model / Type+Part to be lubricated+Lubricant</span>
-      <button class="btn-export" onclick="doExport()">Export CSV</button>
+      <span class="formula">
+        Count <code>=</code> Σ ( Maker + Model + Part + Lubricant )
+      </span>
+      <button class="btn-export" onclick="doExport()">Export · CSV</button>
     </div>
+  </section>
+
+  <div class="section-label" style="margin-top: 50px;">
+    <span class="num">02</span>
+    <span>Reference Ledger</span>
+    <span class="meta" id="ledgerMeta">— sorted by source ▸ count</span>
   </div>
 
-  <div class="results-card">
-    <div class="results-header">
-      <span>Results: <strong id="countLabel">35,816 records</strong></span>
-      <span id="hintLabel" style="font-size:12px;color:#aaa;">Enter criteria and click Search</span>
+  <div class="results-meta">
+    <div class="count">
+      <span id="countLabel">0</span><span class="unit" id="countUnit">records indexed</span>
     </div>
+    <div class="hint" id="hintLabel">— enter criteria to filter —</div>
+  </div>
+
+  <section class="ledger">
     <div class="table-wrap">
       <table id="resultTable">
         <thead>
           <tr>
-            <th>Equipment</th>
-            <th>Maker</th>
-            <th>Model / Type</th>
-            <th>Part to be lubricated</th>
-            <th>Lubricant</th>
-            <th>Count</th>
-            <th>Source</th>
+            <th><span class="col-num">A</span>Equipment</th>
+            <th><span class="col-num">B</span>Maker</th>
+            <th><span class="col-num">C</span>Model / Type</th>
+            <th><span class="col-num">D</span>Part to be lubricated</th>
+            <th><span class="col-num">E</span>Lubricant</th>
+            <th><span class="col-num">F</span>Cnt</th>
+            <th><span class="col-num">G</span>Source</th>
           </tr>
         </thead>
         <tbody id="resultBody"></tbody>
       </table>
     </div>
+  </section>
+
+  <div class="colophon">
+    <div>Created by Mark CHAUNG — 2026</div>
+    <div class="legend">
+      <span class="tag tag-oem">OEM</span>
+      <span class="tag tag-lc">Lube Chart</span>
+      <span class="tag tag-nb">NB</span>
+    </div>
   </div>
-</div>
+
+</main>
 
 <script src="output/app_data.js"></script>
 <script>
-
-// 填入 datalist
-const dl = document.getElementById('makerList');
-MAKERS.forEach(m => {
-  const opt = document.createElement('option');
-  opt.value = m; dl.appendChild(opt);
-});
-
-let currentRows = DATA;
-
-// 排序優先順序：Source（OEM > LUBE CHART > NB）→ Count 降序 → Maker → Model/Type
-const SOURCE_ORDER = { 'OEM': 0, 'LUBE CHART': 1, 'NB': 2 };
-function sortByCount(rows) {
-  return [...rows].sort((a, b) => {
-    const sa = SOURCE_ORDER[a['Source']] ?? 99;
-    const sb = SOURCE_ORDER[b['Source']] ?? 99;
-    if (sa !== sb) return sa - sb;
-    const ca = (a['Count'] != null ? Number(a['Count']) : 1) || 1;
-    const cb = (b['Count'] != null ? Number(b['Count']) : 1) || 1;
-    if (cb !== ca) return cb - ca;
-    const ma = (a['Maker'] || '').toString();
-    const mb = (b['Maker'] || '').toString();
-    if (ma !== mb) return ma.localeCompare(mb);
-    const ta = (a['Model / Type'] || '').toString();
-    const tb = (b['Model / Type'] || '').toString();
-    return ta.localeCompare(tb);
-  });
-}
-
-function normalize(s) {
-  return (s || '').toString().toUpperCase().trim();
-}
-
-function doSearch() {
-  const maker = normalize(document.getElementById('makerInput').value);
-  const model = normalize(document.getElementById('modelInput').value);
-
-  const filtered = DATA.filter(r => {
-    if (maker && !normalize(r['Maker']).includes(maker)) return false;
-    if (model && !normalize(r['Model / Type']).includes(model)) return false;
-    return true;
+  // 填入 datalist
+  const dl = document.getElementById('makerList');
+  MAKERS.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m; dl.appendChild(opt);
   });
 
-  currentRows = sortByCount(filtered);
-  renderTable(currentRows);
-}
+  let currentRows = DATA;
 
-function doClear() {
-  document.getElementById('makerInput').value = '';
-  document.getElementById('modelInput').value = '';
+  // 排序優先順序：Source（OEM > LUBE CHART > NB）→ Count 降序 → Maker → Model/Type
+  const SOURCE_ORDER = { 'OEM': 0, 'LUBE CHART': 1, 'NB': 2 };
+  function sortByCount(rows) {
+    return [...rows].sort((a, b) => {
+      const sa = SOURCE_ORDER[a['Source']] ?? 99;
+      const sb = SOURCE_ORDER[b['Source']] ?? 99;
+      if (sa !== sb) return sa - sb;
+      const ca = (a['Count'] != null ? Number(a['Count']) : 1) || 1;
+      const cb = (b['Count'] != null ? Number(b['Count']) : 1) || 1;
+      if (cb !== ca) return cb - ca;
+      const ma = (a['Maker'] || '').toString();
+      const mb = (b['Maker'] || '').toString();
+      if (ma !== mb) return ma.localeCompare(mb);
+      const ta = (a['Model / Type'] || '').toString();
+      const tb = (b['Model / Type'] || '').toString();
+      return ta.localeCompare(tb);
+    });
+  }
+
+  function normalize(s) {
+    return (s || '').toString().toUpperCase().trim();
+  }
+
+  function doSearch() {
+    const maker = normalize(document.getElementById('makerInput').value);
+    const model = normalize(document.getElementById('modelInput').value);
+
+    const filtered = DATA.filter(r => {
+      if (maker && !normalize(r['Maker']).includes(maker)) return false;
+      if (model && !normalize(r['Model / Type']).includes(model)) return false;
+      return true;
+    });
+
+    currentRows = sortByCount(filtered);
+    renderTable(currentRows);
+  }
+
+  function doClear() {
+    document.getElementById('makerInput').value = '';
+    document.getElementById('modelInput').value = '';
+    currentRows = sortByCount(DATA);
+    renderTable(currentRows);
+  }
+
+  function escapeHTML(v) {
+    return String(v == null ? '' : v)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function renderTable(rows) {
+    const tbody = document.getElementById('resultBody');
+    const countLabel = document.getElementById('countLabel');
+    const countUnit  = document.getElementById('countUnit');
+    const hintLabel  = document.getElementById('hintLabel');
+
+    countLabel.textContent = rows.length.toLocaleString();
+    countUnit.textContent = rows.length === 1 ? 'record matched' : 'records matched';
+
+    if (rows.length === DATA.length) {
+      hintLabel.innerHTML = '— showing all <b>' + DATA.length.toLocaleString() + '</b> records —';
+    } else {
+      hintLabel.innerHTML = '— filtered from <b>' + DATA.length.toLocaleString() + '</b> total —';
+    }
+
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="no-result">No matching records found in the index.</td></tr>';
+      return;
+    }
+
+    const display = rows.slice(0, 500);
+    tbody.innerHTML = display.map((r, i) => {
+      const src = r['Source'];
+      const srcTag = src === 'NB'
+        ? '<span class="tag tag-nb">NB</span>'
+        : src === 'OEM'
+        ? '<span class="tag tag-oem">OEM</span>'
+        : '<span class="tag tag-lc">Lube Chart</span>';
+      const cnt = r['Count'] != null ? Number(r['Count']) : 1;
+      const cntClass = cnt >= 10 ? 'count-cell high' : 'count-cell';
+      const delay = Math.min(i * 12, 600);
+      return `<tr style="animation-delay:${delay}ms">
+        <td class="serif">${escapeHTML(r['Equipment'])}</td>
+        <td>${escapeHTML(r['Maker'])}</td>
+        <td>${escapeHTML(r['Model / Type'])}</td>
+        <td>${escapeHTML(r['Part to be lubricated'])}</td>
+        <td class="lubricant-cell">${escapeHTML(r['Lubricant'])}</td>
+        <td class="${cntClass}">${cnt}</td>
+        <td>${srcTag}</td>
+      </tr>`;
+    }).join('');
+
+    if (rows.length > 500) {
+      tbody.innerHTML += `<tr><td colspan="7" class="truncate-note">
+        ▲ showing first 500 of ${rows.length.toLocaleString()} — narrow search or export full set
+      </td></tr>`;
+    }
+  }
+
+  function doExport() {
+    if (currentRows.length === 0) { alert('No data to export.'); return; }
+    const cols = ['Equipment','Maker','Model / Type','Part to be lubricated','Lubricant','Count','Source'];
+    const lines = [cols.join(',')];
+    currentRows.forEach(r => {
+      lines.push(cols.map(c => `"${String(r[c] != null ? r[c] : '').replace(/"/g,'""')}"`).join(','));
+    });
+    const blob = new Blob(['﻿' + lines.join('\n')], {type:'text/csv;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'lube_oil_query.csv';
+    a.click();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+  });
+
   currentRows = sortByCount(DATA);
   renderTable(currentRows);
-}
-
-function renderTable(rows) {
-  const tbody = document.getElementById('resultBody');
-  const countLabel = document.getElementById('countLabel');
-  const hintLabel = document.getElementById('hintLabel');
-
-  countLabel.textContent = `${rows.length.toLocaleString()} records`;
-  hintLabel.textContent = rows.length === DATA.length ? 'Showing all records' : `Filtered from ${DATA.length.toLocaleString()} records`;
-
-  if (rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="no-result">No matching records found.</td></tr>';
-    return;
-  }
-
-  // Render only first 500 rows to avoid browser lag
-  const display = rows.slice(0, 500);
-  tbody.innerHTML = display.map(r => {
-    const src = r['Source'] === 'NB'
-      ? '<span class="tag tag-nb">NB</span>'
-      : r['Source'] === 'OEM'
-      ? '<span class="tag tag-oem">OEM</span>'
-      : '<span class="tag tag-lc">LUBE CHART</span>';
-    return `<tr>
-      <td>${r['Equipment']}</td>
-      <td>${r['Maker']}</td>
-      <td>${r['Model / Type']}</td>
-      <td>${r['Part to be lubricated']}</td>
-      <td><strong>${r['Lubricant']}</strong></td>
-      <td style="text-align:center;">${r['Count'] != null ? r['Count'] : 1}</td>
-      <td>${src}</td>
-    </tr>`;
-  }).join('');
-
-  if (rows.length > 500) {
-    tbody.innerHTML += `<tr><td colspan="7" style="text-align:center;padding:12px;color:#888;font-size:12px;">
-      ⚠️ Showing first 500 of ${rows.length.toLocaleString()} matching records. Narrow your search or export CSV to view all.
-    </td></tr>`;
-  }
-}
-
-function doExport() {
-  if (currentRows.length === 0) { alert('No data to export.'); return; }
-  const cols = ['Equipment','Maker','Model / Type','Part to be lubricated','Lubricant','Count','Source'];
-  const lines = [cols.join(',')];
-  currentRows.forEach(r => {
-    lines.push(cols.map(c => `"${String(r[c] != null ? r[c] : '').replace(/"/g,'""')}"`).join(','));
-  });
-  const blob = new Blob(['﻿' + lines.join('\n')], {type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'lube_oil_query.csv';
-  a.click();
-}
-
-// Press Enter to trigger search
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') doSearch();
-});
-
-// Initial render — sorted by Source (OEM > LUBE CHART > NB) → Count desc → Maker → Model/Type
-currentRows = sortByCount(DATA);
-renderTable(currentRows);
 </script>
 </body>
 </html>
