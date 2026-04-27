@@ -997,3 +997,74 @@ OEM：
 
 App 排序：lube_query_app.html 已更新（Count 降序 → Source → Maker → Model）
 ========================================
+========================================
+時間：2026-04-26 15:59:47
+動作：部署（GitHub + Vercel）
+----------------------------------------
+Git commit：f11eef7
+推送至 GitHub：✓
+Vercel 部署：已透過 webhook 自動觸發
+========================================
+========================================
+時間：2026-04-26 20:34:46
+動作：更新NB
+----------------------------------------
+重新處理：010-2 7U-2000-501_LUB OIL CHART_0001.pdf ✓（mtime_changed）, 2359-DWG(R)-0-MF00201 LUBRICATION OIL CHART.pdf ✓（mtime_changed）, 2933_9A200M004_LUB OIL CHART_000_0001_202571475348.pdf ✓（mtime_changed）, 30408027JL-船东供油料清单-TOTAL（H2652and53）.pdf ✓（mtime_changed）, 3414_7U-2000-501_Lub Oil Chart(TOTAL)_R100_0001.pdf ✓（mtime_changed）, 3441's 7U-2000-501 LO Chart (TOTAL)_R101.pdf ✓（mtime_changed）, 3493~3495 Lub. Oil Chart_Total_R100★.pdf ✓（mtime_changed）, 8417_L.O CHART_R2.pdf ✓（mtime_changed）, CX5410.pdf ✓（mtime_changed）, CX9613 - CX9616.pdf ✓（mtime_changed）, G6029000-A-LUB.OIL CHART-S1950_240813.pdf ✓（mtime_changed）, H1610.pdf ✓（無 high/medium 記錄）, H1839A.pdf ✓（mtime_changed）, H2724.pdf ✓（mtime_changed）, H2771-H2776.pdf ✓（mtime_changed）, HN5801-7U2880201-LUB OIL CHART (TOTAL)_Rev.0.pdf ✓（mtime_changed）, JLZ8230417.pdf ✓（mtime_changed）, JNS230.pdf ✓（mtime_changed）, M-53_5100201N LUBRICATION OIL CHART-(Rev-A)-H1872A 20220727.pdf ✓（mtime_changed）, NDY1305_.pdf ✓（mtime_changed）, NTS0330001.pdf ✓（mtime_changed）, SN2265 & 68 MF00201_LUBRICATION OIL CHART(Total)_rev A(2020-03-07).pdf ✓（mtime_changed）, SN2662 MF00201 LO ChartRev.C.pdf ✓（mtime_changed）, SN2672 76 79 81 83 85 L.O chart(TOTAL)_HSHFO_rev.D_2025-09-19.pdf ✓（mtime_changed）
+
+輸出：output/nb_master.xlsx（共 1088 列）
+========================================
+========================================
+時間：2026-04-26 20:36:03
+動作：更新OEM
+----------------------------------------
+重新處理：J-ENG_UECC_Engines_USI-10004_9_2.pdf ✓（mtime_changed）, WinGD_engine-oils_v18.pdf ✓（mtime_changed）
+待 AI 審閱（文字已提取，無結構化表格）：
+  - MAN ES_Marine Engine Programme.pdf  → pending_ai_review/
+  - MAN ES_SL2023-737.pdf  → pending_ai_review/
+
+輸出：output/oem_master.xlsx（source_data 0 列 / manual_data 355 列）
+========================================
+========================================
+時間：2026-04-26 20:59:16
+動作：更新OEM
+----------------------------------------
+待 AI 審閱（已提取文字）：
+  - J-ENG_UECC_Engines_USI-10004_9_2.pdf  → pending_ai_review/
+  - MAN ES_Marine Engine Programme.pdf  → pending_ai_review/
+  - MAN ES_SL2023-737.pdf  → pending_ai_review/
+  - WinGD_engine-oils_v18.pdf  → pending_ai_review/
+
+輸出：output/oem_master.xlsx（manual_data 355 列）
+待 AI 審閱總數：4 筆
+========================================
+========================================
+時間：2026-04-26 21:02:18
+動作：更新OEM
+----------------------------------------
+待 AI 審閱（已提取文字）：
+  - J-ENG_UECC_Engines_USI-10004_9_2.pdf  → pending_ai_review/
+  - MAN ES_Marine Engine Programme.pdf  → pending_ai_review/
+  - MAN ES_SL2023-737.pdf  → pending_ai_review/
+  - WinGD_engine-oils_v18.pdf  → pending_ai_review/
+
+輸出：output/oem_master.xlsx（manual_data 355 列）
+待 AI 審閱總數：4 筆
+========================================
+========================================
+時間：2026-04-27 10:43:31
+動作：更新OEM
+----------------------------------------
+跳過：4 個檔案（未變更）
+
+輸出：output/oem_master.xlsx（manual_data 358 列）
+待 AI 審閱總數：4 筆
+========================================
+========================================
+時間：2026-04-27 10:45:36
+動作：更新OEM
+----------------------------------------
+跳過：4 個檔案（未變更）
+
+輸出：output/oem_master.xlsx（manual_data 358 列）
+待 AI 審閱總數：4 筆
+========================================

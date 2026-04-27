@@ -1,25 +1,45 @@
 {
-  "last_updated": "2026-04-26T15:58:53",
+  "last_updated": "2026-04-27T10:45:37",
   "failed_files": {
     "oem/MAN ES_Marine Engine Programme.pdf": {
       "source": "oem",
-      "first_failed_at": "2026-04-26T15:55:08",
-      "last_failed_at": "2026-04-26T15:55:08",
+      "first_failed_at": "2026-04-26T20:36:03",
+      "last_failed_at": "2026-04-26T21:02:18",
       "retry_count": 0,
       "error_type": "AI_REVIEW_PENDING",
-      "error_message": "無結構化表格，已提取 231 頁文字，待 Claude AI 審閱後確認寫入 manual_data",
+      "error_message": "已提取 231 個頁的文字，待 AI 審閱",
       "status": "ai_review_pending",
       "pending_file": "D:\\ClaudeCode\\2026_NB_oil_recommendation\\output\\pending_ai_review\\MAN ES_Marine Engine Programme_pending.json"
     },
     "oem/MAN ES_SL2023-737.pdf": {
       "source": "oem",
-      "first_failed_at": "2026-04-26T15:55:08",
-      "last_failed_at": "2026-04-26T15:55:08",
+      "first_failed_at": "2026-04-26T20:36:03",
+      "last_failed_at": "2026-04-26T21:02:18",
       "retry_count": 0,
       "error_type": "AI_REVIEW_PENDING",
-      "error_message": "無結構化表格，已提取 9 頁文字，待 Claude AI 審閱後確認寫入 manual_data",
+      "error_message": "已提取 9 個頁的文字，待 AI 審閱",
       "status": "ai_review_pending",
       "pending_file": "D:\\ClaudeCode\\2026_NB_oil_recommendation\\output\\pending_ai_review\\MAN ES_SL2023-737_pending.json"
+    },
+    "oem/J-ENG_UECC_Engines_USI-10004_9_2.pdf": {
+      "source": "oem",
+      "first_failed_at": "2026-04-26T21:02:18",
+      "last_failed_at": "2026-04-26T21:02:18",
+      "retry_count": 0,
+      "error_type": "AI_REVIEW_PENDING",
+      "error_message": "已提取 5 個頁的文字，待 AI 審閱",
+      "status": "ai_review_pending",
+      "pending_file": "D:\\ClaudeCode\\2026_NB_oil_recommendation\\output\\pending_ai_review\\J-ENG_UECC_Engines_USI-10004_9_2_pending.json"
+    },
+    "oem/WinGD_engine-oils_v18.pdf": {
+      "source": "oem",
+      "first_failed_at": "2026-04-26T21:02:18",
+      "last_failed_at": "2026-04-26T21:02:18",
+      "retry_count": 0,
+      "error_type": "AI_REVIEW_PENDING",
+      "error_message": "已提取 12 個頁的文字，待 AI 審閱",
+      "status": "ai_review_pending",
+      "pending_file": "D:\\ClaudeCode\\2026_NB_oil_recommendation\\output\\pending_ai_review\\WinGD_engine-oils_v18_pending.json"
     }
   }
 }
