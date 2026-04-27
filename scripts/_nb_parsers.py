@@ -475,6 +475,7 @@ def parse_format_F(pdf_path, ship_id):
     records = []
 
     _MAKER_PAT = re.compile(r'MAKER\s*[：:]\s*(.+)', re.I)
+    _TYPE_PAT  = re.compile(r'^TYPE\s*[：:]\s*(.+)', re.I)
     _PAREN_PAT = re.compile(r'^\((.+)\)$')
 
     def _has_maker_kw(text):
@@ -496,6 +497,9 @@ def parse_format_F(pdf_path, ship_id):
                 # 下一行若存在且非 MAKER: 行，視為型號
                 if i + 1 < len(lines) and not _MAKER_PAT.match(lines[i + 1]):
                     nxt = lines[i + 1].strip().upper()
+                    tm = _TYPE_PAT.match(nxt)
+                    if tm:
+                        nxt = tm.group(1).strip()
                     pm = _PAREN_PAT.match(nxt)
                     model = pm.group(1) if pm else nxt
             elif not maker_found:
@@ -526,7 +530,14 @@ def parse_format_F(pdf_path, ship_id):
 
         if text_lines:
             if is_new_equip:
-                maker = text_lines[0]          # 第一行 = Maker
+                # 第一行 = Maker；若含數字（型號合併），用 split_maker_model 拆分
+                first = text_lines[0]
+                if not model and re.search(r'\d', first):
+                    mk, mo = split_maker_model(first)
+                    maker = mk
+                    if mo: model = mo
+                else:
+                    maker = first
                 # 第二行（如有）= 子設備描述，可附加到 Equipment 或忽略
             else:
                 sub_equip = text_lines[0]      # 延續列第一行 = 子設備名稱
@@ -564,8 +575,7 @@ def parse_format_F(pdf_path, ship_id):
                                 pp_col = j
                             elif 'APPLICATION POINT' in cu and app_col is None:
                                 app_col = j
-                            elif ('L.O COMPANY' in cu or 'LO COMPANY' in cu
-                                  or 'L.O GRADE' in cu or 'LO GRADE' in cu
+                            elif (('L.O' in cu or 'LO ' in cu) and ('COMPANY' in cu or 'GRADE' in cu)
                                   or ('TOTAL' in cu and 'L.O' in cu)) and oil_col is None:
                                 oil_col = j
                         break
@@ -593,7 +603,8 @@ def parse_format_F(pdf_path, ship_id):
                     app_raw = _get(app_col)
                     oil_raw = _get(oil_col)
 
-                    is_new = bool(re.match(r'^\d+$', no_raw.strip()))
+                    # 接受純數字（1, 2, ...）與 M-1 / E-1 / A-1 等帶前綴編號
+                    is_new = bool(re.match(r'^([A-Z]+-)?\d+$', no_raw.strip()))
 
                     if is_new:
                         # 新主設備
@@ -630,23 +641,42 @@ def parse_format_F(pdf_path, ship_id):
                     if not app_raw or not oil_raw:
                         continue
 
-                    oil_clean = _clean_oil(oil_raw)
-                    app_clean = _clean_app(app_raw)
+                    # F3 子格式：app_raw / oil_raw 為多行（pdfplumber 將整個主設備合併儲存格）
+                    # 拆解後逐對配對；過濾雜訊行（船名、孤立字母、純數字）
+                    def _is_noise(line):
+                        s = line.strip()
+                        if not s: return True
+                        if re.fullmatch(r'[A-Z]', s): return True            # 單一字母（U / N 等）
+                        if re.fullmatch(r'[\d\s\.,]+', s): return True       # 純數字
+                        if s.upper() in ('IINO KAI', 'L', 'U', 'B', 'I', 'O', 'C', 'H', 'A', 'R', 'T'): return True
+                        return False
 
-                    if not oil_clean or not app_clean:
-                        continue
-                    if re.fullmatch(r'[\d\s\.,]+', oil_clean):
-                        continue
+                    app_lines = [l for l in app_raw.split('\n') if not _is_noise(l)]
+                    oil_lines = [l for l in oil_raw.split('\n') if not _is_noise(l)]
 
-                    records.append({
-                        '船號'     : ship_id,
-                        '設備名稱' : cur_eq,
-                        '設備廠家' : cur_maker,
-                        '設備型號' : cur_model,
-                        '潤滑部位' : app_clean,
-                        '推薦潤滑油': oil_clean,
-                        '_page'   : pg_no,
-                    })
+                    if len(app_lines) > 1 and len(oil_lines) > 1 and len(app_lines) == len(oil_lines):
+                        pairs = list(zip(app_lines, oil_lines))
+                    else:
+                        pairs = [(app_raw, oil_raw)]
+
+                    for app_one, oil_one in pairs:
+                        oil_clean = _clean_oil(oil_one)
+                        app_clean = _clean_app(app_one)
+
+                        if not oil_clean or not app_clean:
+                            continue
+                        if re.fullmatch(r'[\d\s\.,]+', oil_clean):
+                            continue
+
+                        records.append({
+                            '船號'     : ship_id,
+                            '設備名稱' : cur_eq,
+                            '設備廠家' : cur_maker,
+                            '設備型號' : cur_model,
+                            '潤滑部位' : app_clean,
+                            '推薦潤滑油': oil_clean,
+                            '_page'   : pg_no,
+                        })
 
     return records
 
