@@ -18,6 +18,7 @@ WARTSILA_VARIANTS = {
     "WARTSILA / DOOSAN",
     "WARTSILA / HUDONG",
     "WARTSILA / MHI",
+    "WARSTILA",  # 原始 PDF typo
 }
 
 

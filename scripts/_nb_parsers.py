@@ -161,6 +161,12 @@ def parse_format_C(pdf_path, ship_id):
                     if 'Maker' in rs or '厂家' in rs:
                         hdr_idx = i; break
                 if hdr_idx is None: continue
+                # 動態偵測 Lubricant 欄：優先 Recommendation/推荐用油，否則 fallback col 4
+                hdr_row = [str(c or '') for c in table[hdr_idx]]
+                oil_col = 4
+                for idx, h in enumerate(hdr_row):
+                    if 'Recommendation' in h or '推荐用油' in h or '推薦用油' in h:
+                        oil_col = idx; break
                 cur_no = ''; cur_eq = ''; cur_mfr = ''; cur_model = ''
                 for row in table[hdr_idx + 1:]:
                     if not any(row): continue
@@ -169,11 +175,15 @@ def parse_format_C(pdf_path, ship_id):
                     eq_c = c[1] if len(c) > 1 else ''
                     mk_c = c[2] if len(c) > 2 else ''
                     pu_c = c[3] if len(c) > 3 else ''
-                    ol_c = c[4] if len(c) > 4 else ''
+                    ol_c = c[oil_col] if len(c) > oil_col else ''
                     if re.match(r'^\d+$', no_c):
                         cur_no = no_c
-                        eq_first = eq_c.split('\n')[0] if '\n' in eq_c else eq_c
-                        cur_eq = strip_cn(eq_first)
+                        # 取所有非純中文行（保留如 "MAIN\nENGINE\n主机" 中的 MAIN ENGINE）
+                        eq_lines = [
+                            ln.strip() for ln in eq_c.split('\n')
+                            if ln.strip() and not re.fullmatch(r'[一-鿿\s]+', ln.strip())
+                        ]
+                        cur_eq = strip_cn(' '.join(eq_lines)) if eq_lines else strip_cn(eq_c)
                         cur_mfr, cur_model = split_maker_model(clean(mk_c))
                     if not cur_no: continue
                     if mk_c.strip() and not cur_mfr:
@@ -705,6 +715,11 @@ def parse_format_N(pdf_path, ship_id):
 
             for x_key in sorted(x_groups):
                 grp = x_groups[x_key]
+                # 跳過 remark 欄：無 NO 數字、無單位（LTR/KG）、且字數較多 → 為跨欄說明文字
+                has_no = any(re.fullmatch(r'\d+', w[4]) and 780 <= w[1] <= 820 for w in grp)
+                has_unit = any(w[4] in ('LTR', 'KG') and 305 <= w[1] <= 330 for w in grp)
+                if not has_no and not has_unit and len(grp) >= 5:
+                    continue
                 # 將 group 內 words 依 col 分類
                 col_words = {col: [] for col, _, _ in Y_BANDS}
                 for w in grp:
@@ -712,9 +727,9 @@ def parse_format_N(pdf_path, ship_id):
                     if c:
                         col_words[c].append(w)
 
-                # 取每個 col 的文字（依 y 排序）
+                # 取每個 col 的文字（依 y 反向排序：高 y = 原始左側）
                 def col_text(c):
-                    ws = sorted(col_words[c], key=lambda w: w[1])
+                    ws = sorted(col_words[c], key=lambda w: w[1], reverse=True)
                     return ' '.join(w[4] for w in ws).strip()
 
                 no_t    = col_text('no')
