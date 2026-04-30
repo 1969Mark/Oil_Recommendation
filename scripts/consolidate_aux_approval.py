@@ -8,9 +8,16 @@ Mapping:
   Lubricant             = first non-empty among Mineral / Synthetic / Grease
 Filter: Present on listed Maker's List == "Y"
 """
+import re
 from pathlib import Path
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
+
+_WS_RE = re.compile(r"[\s　]+")  # 一般空白 + 全形空格
+
+
+def collapse_ws(s: str) -> str:
+    return _WS_RE.sub(" ", s).strip() if s else s
 
 SRC = Path("OEM_data/Auxiliary approval_.xlsx")
 OUT = Path("output/auxiliary_approval_consolidated.xlsx")
@@ -40,6 +47,10 @@ def resolve_columns(main_row, sub_row):
             cols["maker"] = idx
         elif v == "pattern":
             cols["type"] = idx
+        elif v == "refrigerant":
+            cols["refrigerant"] = idx
+        elif v == "type":
+            cols["type2"] = idx
         elif v.startswith("operating condition"):
             cols["part"] = idx
         elif v.startswith("present on listed"):
@@ -92,8 +103,21 @@ def main():
                 continue
             maker = norm(r[cols["maker"]])
             type_ = norm(r[cols.get("type", -1)]) if "type" in cols else ""
-            part = norm(r[cols.get("part", -1)]) if "part" in cols else ""
-            lub = pick_lubricant(r, cols)
+            # Sheet-specific TYPE composition:
+            #   RefriComp: Pattern + "-" + Refrigerant
+            #   Separator: Pattern + "-" + Type
+            extra = ""
+            if sheet_name == "RefriComp" and "refrigerant" in cols:
+                extra = norm(r[cols["refrigerant"]])
+            elif sheet_name == "Separator" and "type2" in cols:
+                extra = norm(r[cols["type2"]])
+            extra = collapse_ws(extra)
+            type_ = collapse_ws(type_)
+            if extra:
+                type_ = f"{type_}-{extra}" if type_ else extra
+            part = collapse_ws(norm(r[cols.get("part", -1)])) if "part" in cols else ""
+            lub = collapse_ws(pick_lubricant(r, cols))
+            maker = collapse_ws(maker)
             if not (maker or type_ or part or lub):
                 continue
             out_rows.append([sheet_name, maker, type_, part, lub])
