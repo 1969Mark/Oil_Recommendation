@@ -99,7 +99,13 @@ def rebuild_app_data() -> bool:
         for col in DISPLAY_COLS:
             if col not in df_oem.columns:
                 df_oem[col] = 1 if col == 'Count' else ''
-        frames.append(df_oem[DISPLAY_COLS].copy())
+        # OEM 導入 app 前：所有文字欄位全大寫 + 去除前後空白
+        df_oem = df_oem[DISPLAY_COLS].copy()
+        for col in DISPLAY_COLS:
+            if col == 'Count':
+                continue
+            df_oem.loc[:, col] = df_oem[col].fillna('').astype(str).str.strip().str.upper()
+        frames.append(df_oem)
 
     if not frames:
         print("  ⚠ 無資料可寫入 app_data.js，跳過")
@@ -113,8 +119,15 @@ def rebuild_app_data() -> bool:
             df_all.loc[:, col] = df_all[col].fillna('').astype(str).str.strip()
 
     df_all.loc[:, '_order'] = df_all['Source'].map(SRC_ORDER).fillna(3).astype(int)
-    df_all = df_all.sort_values(['_order', 'Maker', 'Model / Type']).drop(columns=['_order'])
-    df_all = df_all.reset_index(drop=True)
+    df_all = df_all.sort_values(['_order', 'Maker', 'Model / Type'])
+    # 跨來源去重：以 Maker + Model/Type + Part + Lubricant 為鍵，重複時保留 OEM（_order 最小者）
+    dedup_keys = ['Maker', 'Model / Type', 'Part to be lubricated', 'Lubricant']
+    before = len(df_all)
+    df_all = df_all.drop_duplicates(subset=dedup_keys, keep='first')
+    removed = before - len(df_all)
+    if removed:
+        print(f"  ✓ 跨來源去重：移除 {removed:,} 筆重複（保留 OEM 優先）")
+    df_all = df_all.drop(columns=['_order']).reset_index(drop=True)
 
     records   = df_all.to_dict(orient='records')
     data_json = json.dumps(records, ensure_ascii=False, separators=(',', ':'))
