@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-27T10:45:37",
+  "last_updated": "2026-04-30T11:13:01",
   "processed_files": {
     "J-ENG_UECC_Engines_USI-10004_9_2.pdf": {
       "processed_at": "2026-04-26T21:02:18",
@@ -24,6 +24,12 @@
       "file_size_bytes": 566329,
       "file_mtime": "2026-01-30T09:11:52",
       "sha256": "87d636d027faf3b3184d13942dcd631139347be71797f063e10c647de8f52641"
+    },
+    "Auxiliary approval_.xlsx": {
+      "processed_at": "2026-04-30T11:12:58",
+      "file_size_bytes": 251712,
+      "file_mtime": "2026-04-30T11:03:57",
+      "sha256": "680c90fb6919501c21036c0bc7aa77e107106d3c36b13e4667d20bc146a21593"
     }
   }
 }

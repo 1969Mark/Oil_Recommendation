@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-27T15:14:04",
+  "last_updated": "2026-04-30T11:13:01",
   "failed_files": {
     "oem/MAN ES_Marine Engine Programme.pdf": {
       "source": "oem",
@@ -40,6 +40,16 @@
       "error_message": "已提取 12 個頁的文字，待 AI 審閱",
       "status": "ai_review_pending",
       "pending_file": "D:\\ClaudeCode\\2026_NB_oil_recommendation\\output\\pending_ai_review\\WinGD_engine-oils_v18_pending.json"
+    },
+    "oem/Auxiliary approval_.xlsx": {
+      "source": "oem",
+      "first_failed_at": "2026-04-30T11:12:58",
+      "last_failed_at": "2026-04-30T11:12:58",
+      "retry_count": 0,
+      "error_type": "AI_REVIEW_PENDING",
+      "error_message": "已提取 19 個sheet的文字，待 AI 審閱",
+      "status": "ai_review_pending",
+      "pending_file": "D:\\ClaudeCode\\2026_NB_oil_recommendation\\output\\pending_ai_review\\Auxiliary approval__pending.json"
     }
   }
 }
