@@ -105,16 +105,19 @@ def main():
             type_ = norm(r[cols.get("type", -1)]) if "type" in cols else ""
             # Sheet-specific TYPE composition:
             #   RefriComp: Pattern + "-" + Refrigerant
-            #   Separator: Pattern + "-" + Type
+            #   Separator: Pattern + " " + Type
             extra = ""
+            sep = "-"
             if sheet_name == "RefriComp" and "refrigerant" in cols:
                 extra = norm(r[cols["refrigerant"]])
+                sep = "-"
             elif sheet_name == "Separator" and "type2" in cols:
                 extra = norm(r[cols["type2"]])
+                sep = " "
             extra = collapse_ws(extra)
             type_ = collapse_ws(type_)
             if extra:
-                type_ = f"{type_}-{extra}" if type_ else extra
+                type_ = f"{type_}{sep}{extra}" if type_ else extra
             part = collapse_ws(norm(r[cols.get("part", -1)])) if "part" in cols else ""
             lub = collapse_ws(pick_lubricant(r, cols))
             maker = collapse_ws(maker)
